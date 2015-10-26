@@ -1,0 +1,3 @@
+[submodule "Carthage/Checkouts/Act"]
+	path = Carthage/Checkouts/Act
+	url = https://github.com/Goos/Act.git
