@@ -9,9 +9,15 @@
 import Foundation
 import Act
 
-struct RemoteSessionMessage : Message {
+final class RemoteSessionMessage : Message {
     let type = "RemoteSessionMessage"
-    let data: NSData
+    let command: AsyncCommand
+    let data: AnyObject
+    
+    init(command: AsyncCommand, data: AnyObject) {
+        self.command = command
+        self.data = data
+    }
 }
 
 func RemoteControllerInteractor(_: Actor<ControllerState>, message: Message, next: (Message) -> ()) {
@@ -19,10 +25,14 @@ func RemoteControllerInteractor(_: Actor<ControllerState>, message: Message, nex
         return
     }
     
-    do {
-        let decodedMessage: Message = try decode(m.data)
-        next(decodedMessage)
-    } catch {}
+    switch(m.data) {
+    case let remote as ButtonChanged:
+        next(remote)
+    case let remote as DpadChanged:
+        next(remote)
+    default:
+        break
+    }
 }
 
 // MARK: Encoding / Decoding

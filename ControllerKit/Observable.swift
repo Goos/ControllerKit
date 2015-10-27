@@ -28,8 +28,8 @@ public protocol ObservableProtocol {
 }
 
 public struct ValueChange<T: Equatable> {
-    let old: T
-    let new: T
+    public let old: T
+    public let new: T
 }
 
 public final class Observable<T: Equatable> : ObservableProtocol {

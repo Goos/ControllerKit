@@ -7,4 +7,10 @@
    <FileRef
       location = "group:Carthage/Checkouts/Act/Act.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Example/ServerTest/ServerTest.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Example/ClientTest/ClientTest.xcodeproj">
+   </FileRef>
 </Workspace>

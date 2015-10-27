@@ -7,12 +7,13 @@
 //
 
 import Foundation
-import MultipeerConnectivity
 import GameController
 import Act
 
 public protocol ServerDelegate {
-    func service(server: Server, discoveredController controller: Controller)
+    func server(server: Server, discoveredController controller: Controller)
+    func server(server: Server, disconnectedController controller: Controller)
+    func server(server: Server, encounteredError error: NSError)
 }
 
 /*! 
@@ -21,48 +22,50 @@ public protocol ServerDelegate {
     @abstract
     Server is represents an entity to which Clients and Controllers can connect.
 */
-public final class Server : NSObject, MCNearbyServiceAdvertiserDelegate, MCSessionDelegate {
+public final class Server : NSObject, AsyncServerDelegate {
     public var name: String {
-        return peerId.displayName
+        return netServer.serviceName
     }
     
     public private(set) var controllers: [Controller] = []
     public var delegate: ServerDelegate?
     
     private var nativeControllers: [GCController:Controller] = [:]
-    private var remoteControllers: [MCPeerID:Controller] = [:]
+    private var remoteControllers: [AsyncConnection:Controller] = [:]
     
-    private let peerId: MCPeerID
-    private let session: MCSession
-    private let advertiser: MCNearbyServiceAdvertiser
+    private let netServer: AsyncServer
     private let inputQueue = dispatch_queue_create("com.controllerkit.input_queue", DISPATCH_QUEUE_SERIAL)
+    private let queueable: DispatchQueueable
     
-    init(name: String, serviceIdentifier: String = "ckit-server") {
-        peerId = MCPeerID(displayName: name)
-        session = MCSession(peer: peerId)
-        advertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: nil, serviceType: serviceIdentifier)
+    public init(name: String, serviceIdentifier: String = "controllerkit") {
+        queueable = inputQueue.queueable()
+        netServer = AsyncServer()
+        netServer.serviceName = name
+        netServer.serviceType = "_\(serviceIdentifier)._tcp"
         super.init()
-        advertiser.delegate = self
+        
+        netServer.delegate = self
     }
     
     public func publish() {
-        advertiser.startAdvertisingPeer()
+        netServer.start()
         GCController.startWirelessControllerDiscoveryWithCompletionHandler(nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "controllerDidConnect:", name: GCControllerDidConnectNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "controllerDidDisconnect:", name: GCControllerDidDisconnectNotification, object: nil)
     }
     
     public func unpublish() {
-        advertiser.stopAdvertisingPeer()
+        netServer.stop()
         GCController.stopWirelessControllerDiscovery()
         NSNotificationCenter.defaultCenter().removeObserver(self, name: GCControllerDidConnectNotification, object: nil)
     }
     
-    // MARK: Controller discovery
+    // MARK: GCController discovery
     func controllerDidConnect(notification: NSNotification) {
         if let nativeController = notification.object as? GCController {
-            let controller = Controller(nativeController: nativeController, queue: inputQueue.queueable())
+            let controller = Controller(nativeController: nativeController, queue: queueable)
             nativeControllers[nativeController] = controller
+            delegate?.server(self, discoveredController: controller)
         }
     }
     
@@ -72,33 +75,32 @@ public final class Server : NSObject, MCNearbyServiceAdvertiserDelegate, MCSessi
         }
     }
     
-    // MARK: MCNearbyServiceAdvertiserDelegate
-    public func advertiser(advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: NSData?, invitationHandler: (Bool, MCSession) -> Void) {
-        invitationHandler(true, session)
-        let inputHandler = Actor(initialState: ControllerState(), interactors: [RemoteControllerInteractor], reducer: ControllerStateReducer, backgroundQueue: inputQueue.queueable())
+    // MARK: AsyncServerDelegate
+    public func server(theServer: AsyncServer!, didConnect connection: AsyncConnection!) {
+        let inputHandler = Actor(initialState: ControllerState(), interactors: [RemoteControllerInteractor], reducer: ControllerStateReducer, processingQueue: queueable)
         let controller = Controller(inputHandler: inputHandler)
-        remoteControllers[peerId] =  controller
-        delegate?.service(self, discoveredController: controller)
+        remoteControllers[connection] = controller
+        delegate?.server(self, discoveredController: controller)
     }
     
-    // MARK: MCSessionDelegate
-    public func session(session: MCSession, peer peerID: MCPeerID, didChangeState state: MCSessionState) {
-        if let controller = remoteControllers[peerID], status = ConnectionStatus(rawValue: state.rawValue) {
-            controller.inputHandler.send(ConnectionChanged(status: status))
+    public func server(theServer: AsyncServer!, didDisconnect connection: AsyncConnection!) {
+        if let controller = remoteControllers[connection] {
+            controller.inputHandler.send(ConnectionChanged(status: .Disconnected))
+            NSTimer.setTimeout(12) { [weak self] in
+                self?.delegate?.server(self!, disconnectedController: controller)
+                self?.remoteControllers.removeValueForKey(connection)
+            }
         }
     }
     
-    public func session(session: MCSession, didReceiveData data: NSData, fromPeer peerID: MCPeerID) {
-        if let controller = remoteControllers[peerID] {
-            controller.inputHandler.send(RemoteSessionMessage(data: data))
-        }
+    public func server(theServer: AsyncServer!, didFailWithError error: NSError!) {
+        delegate?.server(self, encounteredError: error)
     }
     
-    public func session(session: MCSession, didReceiveStream stream: NSInputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
-    
-    public func session(session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, withProgress progress: NSProgress) {}
-    
-    public func session(session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, atURL localURL: NSURL, withError error: NSError?) {}
-    
-    public func session(session: MCSession, didReceiveCertificate certificate: [AnyObject]?, fromPeer peerID: MCPeerID, certificateHandler: (Bool) -> Void) {}
+    public func server(theServer: AsyncServer!, didReceiveCommand command: AsyncCommand, object: AnyObject!, connection: AsyncConnection!) {
+        if let controller = remoteControllers[connection] {
+            let message = RemoteSessionMessage(command: command, data: object)
+            controller.inputHandler.send(message)
+        }
+    }
 }

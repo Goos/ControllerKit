@@ -15,6 +15,7 @@ public enum ConnectionStatus : Int {
     case Connecting
     case Connected
 }
+
 public final class ButtonState : Hashable {
     public let value: Float
     public let pressed: Bool
@@ -60,19 +61,19 @@ public enum ControllerType {
 
 public final class ControllerState {
     var status: ConnectionStatus
-    let type: ControllerType
+    public let type: ControllerType
     
-    let buttonA: Observable<ButtonState>
-    let buttonB: Observable<ButtonState>
-    let buttonX: Observable<ButtonState>
-    let buttonY: Observable<ButtonState>
+    public let buttonA: Observable<ButtonState>
+    public let buttonB: Observable<ButtonState>
+    public let buttonX: Observable<ButtonState>
+    public let buttonY: Observable<ButtonState>
     
-    let leftShoulder: Observable<ButtonState>
-    let rightShoulder: Observable<ButtonState>
+    public let leftShoulder: Observable<ButtonState>
+    public let rightShoulder: Observable<ButtonState>
     
-    let dpad: Observable<DpadState>
+    public let dpad: Observable<DpadState>
     
-    init() {
+    public init() {
         status = .Disconnected
         type = .Regular
         
@@ -88,7 +89,7 @@ public final class ControllerState {
     }
 }
 
-func ControllerStateReducer(state: ControllerState, message: Message) -> ControllerState {
+public func ControllerStateReducer(state: ControllerState, message: Message) -> ControllerState {
     switch(message) {
     case let m as ConnectionChanged:
         state.status = m.status
@@ -116,12 +117,16 @@ public final class Controller {
         return inputHandler.state
     }
     
-    init(nativeController: GCController, queue: Queueable = dispatch_get_main_queue().queueable()) {
-        inputHandler = Actor(initialState: ControllerState(), interactors: [], reducer: ControllerStateReducer, backgroundQueue: queue)
+    public init(nativeController: GCController, queue: Queueable = dispatch_get_main_queue().queueable()) {
+        inputHandler = Actor(initialState: ControllerState(), interactors: [], reducer: ControllerStateReducer, processingQueue: queue)
         bind(nativeController, inputHandler)
     }
     
-    init(inputHandler: Actor<ControllerState>) {
+    public init(inputHandler: Actor<ControllerState>) {
         self.inputHandler = inputHandler
     }
+}
+
+public func ControllerInputHandler(initialState: ControllerState = ControllerState(), processingQueue: Queueable? = nil) -> Actor<ControllerState> {
+    return Actor(initialState: initialState, interactors: [], reducer: ControllerStateReducer, processingQueue: processingQueue)
 }
