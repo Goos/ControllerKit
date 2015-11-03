@@ -13,26 +13,27 @@ import Act
 class ViewController: UIViewController, ClientDelegate, ServerDelegate {
 
     var inputHandler: Actor<GamepadState>!
-    var client: Client!
+    var client: Client?
     var server: Server!
     var joystickView: JoystickView!
+    var controller: Controller?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let state = GamepadState(type: .Micro)
-        inputHandler = ControllerInputHandler(state, processingQueue: NSRunLoop.mainRunLoop())
-        let controller = Controller(inputHandler: inputHandler)
-        client = Client(name: "TestClient", controller: controller)
-        client.delegate = self
-        client.start()
+//        let state = GamepadState(type: .Micro)
+//        inputHandler = ControllerInputHandler(state, processingQueue: NSRunLoop.mainRunLoop())
+//        let controller = Controller(inputHandler: inputHandler)
+//        client = Client(name: "TestClient", controller: controller)
+//        client.delegate = self
+//        client.start()
 
 //        joystickView = JoystickView(frame: self.view.bounds)
 //        joystickView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
 //        self.view.addSubview(joystickView)
-//        server = Server(name: "TestServer")
-//        server.delegate = self
-//        server.start()
+        server = Server(name: "TestServer", controllerTypes: [.MFi])
+        server.delegate = self
+        server.start()
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -48,13 +49,13 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
     }
     
     func sendInput(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        let firstTouch = touches.first
-        let point = firstTouch!.locationInView(view)
-        let relativeX = (point.x - view.center.x) / view.center.x
-        let relativeY = (view.center.y - point.y) / view.center.y
-        let message = JoystickChanged(joystick: .Dpad, state: JoystickState(xAxis: Float(relativeX), yAxis: Float(relativeY)))
-        
-        inputHandler.send(message)
+//        let firstTouch = touches.first
+//        let point = firstTouch!.locationInView(view)
+//        let relativeX = (point.x - view.center.x) / view.center.x
+//        let relativeY = (view.center.y - point.y) / view.center.y
+//        let message = JoystickChanged(joystick: .Dpad, state: JoystickState(xAxis: Float(relativeX), yAxis: Float(relativeY)))
+//        
+//        controller?.inputHandler.send(message)
     }
     
     func client(client: Client, discoveredService service: NSNetService) {
@@ -62,7 +63,7 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
     }
     
     func client(client: Client, lostService service: NSNetService) {
-        
+    
     }
     
     func client(client: Client, connectedToService service: NSNetService) {
@@ -79,9 +80,14 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
     
     func server(server: Server, controllerConnected controller: Controller, type: ControllerType) {
         print("Found controller: \(controller.state.name.value)")
-        controller.state.dpad.observe { change in
-            self.joystickView.state = change.new
-        }
+        self.controller = controller
+        
+        client = Client(name: "TestController", controller: controller)
+        client?.delegate = self
+        client?.start()
+//        controller.state.dpad.observe { change in
+//            self.joystickView.state = change.new
+//        }
     }
     
     func server(server: Server, controllerDisconnected controller: Controller) {

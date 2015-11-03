@@ -118,4 +118,73 @@ extension SetGamepadType : Marshallable {
     }
 }
 
-//struct RemoteInputThrottler
+final class ThrottledBuffer<T> {
+    let interval: NSTimeInterval
+    private var element: T?
+    private var waiting: Bool
+    private let queue: dispatch_queue_t
+    private let handler: (T) -> ()
+    
+    init(interval: NSTimeInterval, queue: dispatch_queue_t = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), handler: (T) -> ()) {
+        self.interval = interval
+        self.queue = queue
+        self.handler = handler
+        element = nil
+        waiting = false
+    }
+    
+    func insert(element: T) {
+        self.element = element
+        if !waiting {
+            handler(element)
+            self.element = nil
+            
+            waiting = true
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(interval * Double(NSEC_PER_SEC))), queue) {
+                self.waiting = false
+                if let elem = self.element {
+                    self.handler(elem)
+                }
+            }
+        }
+    }
+}
+
+public class ThrottlingTransformer {
+    let interval: Double
+    var joystickInputs: [JoystickType:ThrottledBuffer<JoystickChanged>] = [:]
+    var buttonInputs: [ButtonType:ThrottledBuffer<ButtonChanged>] = [:]
+    
+    init(interval: Double) {
+        self.interval = interval
+    }
+    
+    func receive(inputHandler: Actor<GamepadState>, message: Message, next: (Message) -> ()) {
+        switch(message) {
+        case let m as JoystickChanged:
+            let j  = m.joystick
+            var buf = joystickInputs[j]
+            if buf == nil {
+                buf = ThrottledBuffer(interval: interval) {
+                    next($0)
+                }
+                joystickInputs[j] = buf
+            }
+            
+            buf!.insert(m)
+        case let m as ButtonChanged:
+            let b  = m.button
+            var buf = buttonInputs[b]
+            if buf == nil {
+                buf = ThrottledBuffer(interval: interval, handler: {
+                    next($0)
+                })
+                buttonInputs[b] = buf
+            }
+            
+            buf!.insert(m)
+        default:
+            next(message)
+        }
+    }
+}

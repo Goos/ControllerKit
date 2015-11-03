@@ -138,6 +138,9 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
             let port = UInt16(5126)
             self?.joystickChannel = self?.inputConnection.registerWriteChannel(3, host: host, port: port, type: JoystickChanged.self)
             self?.buttonChannel = self?.inputConnection.registerWriteChannel(4, host: host, port: port, type: ButtonChanged.self)
+            if let name = self?.controller.state.name.value {
+                self?.nameChannel.send(SetControllerName(name: name))
+            }
         }, error: { error in
         
         }, disconnect: {

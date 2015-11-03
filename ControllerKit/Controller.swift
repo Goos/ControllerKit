@@ -198,19 +198,31 @@ public func GamepadStateReducer(state: GamepadState, message: Message) -> Gamepa
 }
 
 public final class Controller : NSObject {
+    internal let throttler: ThrottlingTransformer?
     internal let inputHandler: Actor<GamepadState>
     public var state: GamepadState {
         return inputHandler.state
     }
     
     public init(nativeController: GCController, queue: Queueable = dispatch_get_main_queue().queueable()) {
-        let type: GamepadType = (nativeController.extendedGamepad != nil) ? .Extended : .Regular
-        inputHandler = Actor(initialState: GamepadState(type: type), transformers: [], reducer: GamepadStateReducer, processingQueue: queue)
+        throttler = ThrottlingTransformer(interval: 1.0 / 60.0)
+        
+        var type: GamepadType
+        if nativeController.extendedGamepad != nil {
+            type = .Extended
+        } else if nativeController.gamepad != nil {
+            type = .Regular
+        } else {
+            type = .Micro
+        }
+        
+        inputHandler = Actor(initialState: GamepadState(type: type), transformers: [throttler!.receive], reducer: GamepadStateReducer, processingQueue: queue)
         pipe(nativeController, inputHandler)
     }
     
     public init(inputHandler: Actor<GamepadState>) {
         self.inputHandler = inputHandler
+        throttler = nil
     }
 }
 

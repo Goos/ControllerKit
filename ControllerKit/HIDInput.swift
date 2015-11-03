@@ -169,7 +169,8 @@ final class HIDControllerManager {
                 IOHIDDeviceCalibrateAxisElement(element, calibration: (0.0, 1.0), saturation: (0, 256), deadZonePercent: 0.0)
             }
             
-            let inputHandler = Actor<GamepadState>(initialState: GamepadState(type: .Extended), transformers: [transf.receive], reducer: GamepadStateReducer)
+            let throttler = ThrottlingTransformer(interval: 1.0 / 60.0)
+            let inputHandler = Actor<GamepadState>(initialState: GamepadState(type: .Extended), transformers: [transf.receive, throttler.receive], reducer: GamepadStateReducer)
             let controller = Controller(inputHandler: inputHandler)
             
             IOHIDDeviceRegisterInputValueCallback(device, { (context, result, sender, value) in

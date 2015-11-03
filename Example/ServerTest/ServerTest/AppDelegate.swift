@@ -13,15 +13,34 @@ import ControllerKit
 class AppDelegate: NSObject, NSApplicationDelegate, ServerDelegate, ClientDelegate {
 
     @IBOutlet weak var window: NSWindow!
-    var view: JoystickView!
+    var leftStickView: JoystickView!
+    var rightStickView: JoystickView!
+    var dpadView: JoystickView!
     var server: Server!
     var client: Client?
 
     func applicationDidFinishLaunching(aNotification: NSNotification) {
-        view = JoystickView()
-        window.contentView?.addSubview(view)
-        view.frame = window.contentView!.bounds
-        server = Server(name: "TestServer", controllerTypes: [.HID, .Remote])
+        leftStickView = JoystickView()
+        rightStickView = JoystickView()
+        dpadView = JoystickView()
+        
+        leftStickView.translatesAutoresizingMaskIntoConstraints = false
+        rightStickView.translatesAutoresizingMaskIntoConstraints = false
+        dpadView.translatesAutoresizingMaskIntoConstraints = false
+        
+        window.contentView?.addSubview(leftStickView)
+        window.contentView?.addSubview(rightStickView)
+        window.contentView?.addSubview(dpadView)
+        
+        let views = ["leftStickView": leftStickView, "rightStickView": rightStickView, "dpadView": dpadView]
+        window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-(>=30)-[leftStickView(80)]-(16)-[rightStickView(80)]-(>=30)-|", options: [], metrics: nil, views: views))
+        window.contentView?.addConstraint(NSLayoutConstraint(item: leftStickView, attribute: .CenterX, relatedBy: .Equal, toItem: window.contentView, attribute: .CenterX, multiplier: 1.0, constant: -44.0))
+        window.contentView?.addConstraint(NSLayoutConstraint(item: dpadView, attribute: .CenterX, relatedBy: .Equal, toItem: window.contentView, attribute: .CenterX, multiplier: 1.0, constant: -44.0))
+        window.contentView?.addConstraint(NSLayoutConstraint(item: dpadView, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 80.0))
+        window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
+        window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
+        
+        server = Server(name: "TestServer")
         server.delegate = self
         server.start()
     }
@@ -32,8 +51,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, ServerDelegate, ClientDelega
         client?.delegate = self
         client?.start()
         
+        controller.state.leftThumbstick.observe { change in
+            self.leftStickView.state = change.new!
+        }
+        controller.state.rightThumbstick.observe { change in
+            self.rightStickView.state = change.new!
+        }
         controller.state.dpad.observe { change in
-            self.view.state = change.new
+            self.dpadView.state = change.new
         }
     }
     
@@ -78,10 +103,13 @@ class JoystickView : NSView {
     }
     
     override func drawRect(dirtyRect: NSRect) {
-        let path = NSBezierPath()
-        path.moveToPoint(NSPoint(x: frame.midX, y: frame.midY))
-        path.lineToPoint(NSPoint(x: CGFloat(state.xAxis) * frame.midX + frame.midX, y: CGFloat(state.yAxis) * frame.midY + frame.midY))
         NSColor.greenColor().setStroke()
+        let backgroundPath = NSBezierPath(ovalInRect: dirtyRect)
+        backgroundPath.lineWidth = 2.0
+        backgroundPath.stroke()
+        let path = NSBezierPath()
+        path.moveToPoint(NSPoint(x: dirtyRect.midX, y: dirtyRect.midY))
+        path.lineToPoint(NSPoint(x: CGFloat(state.xAxis) * dirtyRect.midX + dirtyRect.midX, y: CGFloat(state.yAxis) * dirtyRect.midY + dirtyRect.midY))
         path.lineWidth = 2.0
         path.stroke()
     }

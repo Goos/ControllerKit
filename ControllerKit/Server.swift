@@ -38,7 +38,7 @@ public final class Server : NSObject, HIDManagerDelegate, NSNetServiceDelegate, 
     public var controllers: [Controller] {
         return [Array(mfiControllers.values), Array(remoteControllers.values), Array(hidControllers)].flatMap { $0 }
     }
-    private var mfiControllers: [GCController:Controller] = [:]
+    private var mfiControllers: [GCControllerPlayerIndex:Controller] = [:]
     private var remoteControllers: [String:Controller] = [:]
     private var hidControllers: Set<Controller> = []
     
@@ -128,25 +128,25 @@ public final class Server : NSObject, HIDManagerDelegate, NSNetServiceDelegate, 
     // MARK: GCController discovery
     func controllerDidConnect(notification: NSNotification) {
         if let nativeController = notification.object as? GCController {
-            if let existing = mfiControllers[nativeController] {
+            if let existing = mfiControllers[nativeController.playerIndex] {
                 existing.inputHandler.send(ConnectionChanged(status: .Connected))
             } else {
                 let controller = Controller(nativeController: nativeController, queue: queueable)
                 controller.state.name.value = "Controller \(controllers.count + 1)"
-                mfiControllers[nativeController] = controller
+                mfiControllers[nativeController.playerIndex] = controller
                 delegate?.server(self, controllerConnected: controller, type: .MFi)
             }
         }
     }
     
     func controllerDidDisconnect(notification: NSNotification) {
-        if let nativeController = notification.object as? GCController, controller = mfiControllers[nativeController] {
+        if let nativeController = notification.object as? GCController, controller = mfiControllers[nativeController.playerIndex] {
             controller.inputHandler.send(ConnectionChanged(status: .Disconnected))
             
             NSTimer.setTimeout(12) { [weak self] in
                 if controller.state.status == .Disconnected {
                     self?.delegate?.server(self!, controllerDisconnected: controller)
-                    self?.mfiControllers.removeValueForKey(nativeController)
+                    self?.mfiControllers.removeValueForKey(nativeController.playerIndex)
                 }
             }
         }
@@ -210,15 +210,11 @@ public final class Server : NSObject, HIDManagerDelegate, NSNetServiceDelegate, 
         }
         
         jc.receive {
-            if let controller = self.remoteControllers.values.first {
-                controller.inputHandler.send($0)
-            }
+            controller.inputHandler.send($0)
         }
         
         bc.receive {
-            if let controller = self.remoteControllers.values.first {
-                controller.inputHandler.send($0)
-            }
+            controller.inputHandler.send($0)
         }
         
         tcpConnection.onDisconnect = {
