@@ -43,8 +43,8 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     var joystickChannel: WriteChannel<JoystickChanged>?
     var buttonChannel: WriteChannel<ButtonChanged>?
     
-    let networkQueue = dispatch_queue_create("com.controllerkit.network", DISPATCH_QUEUE_CONCURRENT)
-    let delegateQueue = dispatch_queue_create("com.controllerkit.delegate", DISPATCH_QUEUE_CONCURRENT)
+    let networkQueue = dispatch_queue_create("com.controllerkit.network", DISPATCH_QUEUE_SERIAL)
+    let delegateQueue = dispatch_queue_create("com.controllerkit.delegate", DISPATCH_QUEUE_SERIAL)
     
     public weak var delegate: ClientDelegate?
     
