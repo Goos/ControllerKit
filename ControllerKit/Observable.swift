@@ -14,7 +14,7 @@ private struct BoxedObserver<T> : Hashable {
     
     init(_ closure: T) {
         self.closure = closure
-        self.hashValue = Int(arc4random())
+        self.hashValue = Int(arc4random_uniform(UInt32(Int32.max)))
     }
 }
 
@@ -27,12 +27,12 @@ public protocol ObservableProtocol {
     func observe(observer: (ChangeType) -> ()) -> (() -> ())!
 }
 
-public struct ValueChange<T: Equatable> {
+public struct ValueChange<T> {
     public let old: T
     public let new: T
 }
 
-public final class Observable<T: Equatable> : ObservableProtocol {
+public final class Observable<T> : ObservableProtocol {
     public typealias ChangeType = ValueChange<T>
     public typealias Observer = (ChangeType) -> ()
     
@@ -47,11 +47,9 @@ public final class Observable<T: Equatable> : ObservableProtocol {
         self.value = value
     }
     
-    private func evaluateChange(old: T, new: T) {
-        if old != new {
-            let change = ValueChange(old: old, new: new)
-            observers.forEach { $0.closure(change) }
-        }
+    func evaluateChange(old: T, new: T) {
+        let change = ValueChange(old: old, new: new)
+        observers.forEach { $0.closure(change) }
     }
     
     public func observe(observer: Observer) -> (() -> ())! {
@@ -202,8 +200,6 @@ extension ObservableCollection : Copyable {
     }
 }
 
-extension Observable : Equatable {}
-
-public func ==<T>(lhs: Observable<T>, rhs: Observable<T>) -> Bool {
+public func ==<T: Equatable>(lhs: Observable<T>, rhs: Observable<T>) -> Bool {
     return lhs.value == rhs.value
 }

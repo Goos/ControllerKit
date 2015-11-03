@@ -9,50 +9,113 @@
 import Foundation
 import Act
 
-final class RemoteSessionMessage : Message {
-    let type = "RemoteSessionMessage"
-    let command: AsyncCommand
-    let data: AnyObject
+extension JoystickChanged : Marshallable {
+    init?(data: NSData) {
+        let typeSize = sizeof(UInt16)
+        let axisSize = sizeof(CFSwappedFloat32)
+        if data.length < typeSize + axisSize * 2 {
+            return nil
+        }
+        var rawType = UInt16()
+        var swappedX = CFSwappedFloat32()
+        var swappedY = CFSwappedFloat32()
+        data.getBytes(&rawType, length: typeSize)
+        data.getBytes(&swappedX, range: NSMakeRange(typeSize, axisSize))
+        data.getBytes(&swappedY, range: NSMakeRange(typeSize + axisSize, axisSize))
+        
+        if let type = JoystickType(rawValue: CFSwapInt16LittleToHost(rawType)) {
+            let xAxis = CFConvertFloat32SwappedToHost(swappedX)
+            let yAxis = CFConvertFloat32SwappedToHost(swappedY)
+            self.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
+            self.joystick = type
+        } else {
+            return nil
+        }
+    }
     
-    init(command: AsyncCommand, data: AnyObject) {
-        self.command = command
-        self.data = data
+    func marshal() -> NSData {
+        let data = NSMutableData()
+        var rawType = CFSwapInt16HostToLittle(joystick.rawValue)
+        var swappedX = CFConvertFloat32HostToSwapped(state?.xAxis ?? 0.0)
+        var swappedY = CFConvertFloat32HostToSwapped(state?.yAxis ?? 0.0)
+        data.appendBytes(&rawType, length: sizeof(UInt16))
+        data.appendBytes(&swappedX, length: sizeof(CFSwappedFloat32))
+        data.appendBytes(&swappedY, length: sizeof(CFSwappedFloat32))
+        return data
     }
 }
 
-func RemoteControllerInteractor(_: Actor<ControllerState>, message: Message, next: (Message) -> ()) {
-    guard let m = message as? RemoteSessionMessage else {
-        return
+extension ButtonChanged : Marshallable {
+    init?(data: NSData) {
+        let typeSize = sizeof(UInt16)
+        let valueSize = sizeof(CFSwappedFloat32)
+        let pressedSize = sizeof(Bool)
+        if data.length < typeSize + valueSize + pressedSize {
+            return nil
+        }
+        var rawType = UInt16()
+        var swappedValue = CFSwappedFloat32()
+        var pressed = Bool()
+        data.getBytes(&rawType, length: typeSize)
+        data.getBytes(&swappedValue, length: valueSize)
+        data.getBytes(&pressed, range: NSMakeRange(valueSize, pressedSize))
+        let value = CFConvertFloat32SwappedToHost(swappedValue)
+        
+        if let button = ButtonType(rawValue: CFSwapInt16LittleToHost(rawType)) {
+            self.button = button
+            self.state = ButtonState(value: value, pressed: pressed)
+        } else {
+            return nil
+        }
     }
     
-    switch(m.data) {
-    case let remote as ButtonChanged:
-        next(remote)
-    case let remote as DpadChanged:
-        next(remote)
-    default:
-        break
+    func marshal() -> NSData {
+        let data = NSMutableData()
+        var rawType = CFSwapInt16HostToLittle(button.rawValue)
+        var swappedVal = CFConvertFloat32HostToSwapped(state?.value ?? 0.0)
+        var pressed = state?.pressed ?? false
+        data.appendBytes(&rawType, length: sizeof(UInt16))
+        data.appendBytes(&swappedVal, length: sizeof(Float))
+        data.appendBytes(&pressed, length: sizeof(Bool))
+        return data
     }
 }
 
-// MARK: Encoding / Decoding
-enum EncodingStructError: ErrorType {
-    case InvalidSize
-}
-
-func encode<T>(var value: T) -> NSData {
-    return withUnsafePointer(&value) { p in
-        NSData(bytes: p, length: sizeofValue(value))
+extension SetControllerName : Marshallable {
+    init?(data: NSData) {
+        if let name = String(data: data, encoding: NSUTF8StringEncoding) {
+            self.name = name
+        } else {
+            return nil
+        }
+    }
+    
+    func marshal() -> NSData {
+        let data = NSMutableData()
+        if let encoded = name?.dataUsingEncoding(name!.smallestEncoding) {
+            data.appendData(encoded)
+        }
+        return data
     }
 }
 
-func decode<T>(data: NSData) throws -> T {
-    guard data.length == sizeof(T) else {
-        throw EncodingStructError.InvalidSize
+extension SetGamepadType : Marshallable {
+    init?(data: NSData) {
+        var rawType = UInt16()
+        data.getBytes(&rawType, length: sizeof(UInt16))
+        if let gamepad = GamepadType(rawValue: rawType) {
+            self.controllerType = gamepad
+        } else {
+            return nil
+        }
     }
-
-    let pointer = UnsafeMutablePointer<T>.alloc(1)
-    data.getBytes(pointer, length: data.length)
-
-    return pointer.move()
+    
+    func marshal() -> NSData {
+        let data = NSMutableData()
+        var rawType = controllerType.rawValue
+        data.appendBytes(&rawType, length: sizeof(UInt16))
+        return data
+    }
 }
+
+//struct RemoteInputThrottler

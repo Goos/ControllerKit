@@ -30,6 +30,8 @@ final class ClosureTimerProxy : NSObject {
 public extension NSTimer {
     static func setTimeout(timeout: NSTimeInterval, repeats: Bool = false, callback: () -> ()) -> NSTimer {
         let proxy = ClosureTimerProxy(callback: callback, repeats: repeats)
-        return NSTimer.scheduledTimerWithTimeInterval(timeout, target: proxy, selector: "performCallback:", userInfo: nil, repeats: repeats)
+        let timer = NSTimer(timeInterval: timeout, target: proxy, selector: "performCallback:", userInfo: nil, repeats: repeats)
+        NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
+        return timer
     }
 }
