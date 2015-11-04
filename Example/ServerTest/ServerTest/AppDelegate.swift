@@ -40,7 +40,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ServerDelegate, ClientDelega
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
         
-        server = Server(name: "TestServer")
+        server = Server(name: "TestServer", controllerTypes: [.HID])
         server.delegate = self
         server.start()
     }
@@ -51,15 +51,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, ServerDelegate, ClientDelega
         client?.delegate = self
         client?.start()
         
-        controller.state.leftThumbstick.observe { change in
-            self.leftStickView.state = change.new!
-        }
-        controller.state.rightThumbstick.observe { change in
-            self.rightStickView.state = change.new!
-        }
-        controller.state.dpad.observe { change in
-            self.dpadView.state = change.new
-        }
+//        controller.state.leftThumbstick.observe { change in
+//            self.leftStickView.state = change.new!
+//        }
+//        controller.state.rightThumbstick.observe { change in
+//            self.rightStickView.state = change.new!
+//        }
+//        controller.state.dpad.observe { change in
+//            self.dpadView.state = change.new
+//        }
     }
     
     func server(server: Server, controllerDisconnected controller: Controller) {
@@ -87,7 +87,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ServerDelegate, ClientDelega
     }
     
     func client(client: Client, encounteredError error: ErrorType) {
-
+        print(error)
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {

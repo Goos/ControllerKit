@@ -38,10 +38,10 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     let tcpConnection: TCPConnection
     let inputConnection: UDPConnection
     
-    let nameChannel: WriteChannel<SetControllerName>
-    let gamepadTypeChannel: WriteChannel<SetGamepadType>
-    var joystickChannel: WriteChannel<JoystickChanged>?
-    var buttonChannel: WriteChannel<ButtonChanged>?
+    let nameChannel: WriteChannel<RemoteMessage<SetControllerName>>
+    let gamepadTypeChannel: WriteChannel<RemoteMessage<SetGamepadType>>
+    var joystickChannel: WriteChannel<RemoteMessage<JoystickChanged>>?
+    var buttonChannel: WriteChannel<RemoteMessage<ButtonChanged>>?
     
     let networkQueue = dispatch_queue_create("com.controllerkit.network", DISPATCH_QUEUE_SERIAL)
     let delegateQueue = dispatch_queue_create("com.controllerkit.delegate", DISPATCH_QUEUE_SERIAL)
@@ -58,8 +58,8 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
         tcpConnection = TCPConnection(socketQueue: networkQueue, delegateQueue: delegateQueue)
         inputConnection = UDPConnection(socketQueue: networkQueue, delegateQueue: delegateQueue)
         
-        nameChannel = tcpConnection.registerWriteChannel(1, type: SetControllerName.self)
-        gamepadTypeChannel = tcpConnection.registerWriteChannel(2, type: SetGamepadType.self)
+        nameChannel = tcpConnection.registerWriteChannel(1, type: RemoteMessage<SetControllerName>.self)
+        gamepadTypeChannel = tcpConnection.registerWriteChannel(2, type: RemoteMessage<SetGamepadType>.self)
         
         super.init()
         
@@ -103,15 +103,18 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     
     // MARK: Input forwarding
     func nameChanged(name: String?) {
-        nameChannel.send(SetControllerName(name: name))
+        let message = RemoteMessage(message: SetControllerName(name: name), controllerIdx: controller.index)
+        nameChannel.send(message)
     }
     
     func buttonChanged(button: ButtonType, state: ButtonState?) {
-        buttonChannel?.send(ButtonChanged(button: button, state: state))
+        let message = RemoteMessage(message: ButtonChanged(button: button, state: state), controllerIdx: controller.index)
+        buttonChannel?.send(message)
     }
     
     func joystickChanged(joystick: JoystickType, state: JoystickState?) {
-        joystickChannel?.send(JoystickChanged(joystick: joystick, state: state))
+        let message = RemoteMessage(message: JoystickChanged(joystick: joystick, state: state), controllerIdx: controller.index)
+        joystickChannel?.send(message)
     }
     
     // MARK: NSNetServiceBrowserDelegate
@@ -124,32 +127,46 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     }
     
     public func netServiceBrowser(browser: NSNetServiceBrowser, didNotSearch errorDict: [String : NSNumber]) {
-
+        if let domain = errorDict[NSNetServicesErrorDomain] as? Int,
+            code = errorDict[NSNetServicesErrorCode] as? Int {
+                self.delegate?.client(self, encounteredError: NetServiceError(domain: domain, code: code))
+        }
     }
     
     // MARK: NSNetServiceDelegate
     public func netServiceDidResolveAddress(sender: NSNetService) {
-        guard let address = sender.addresses?.first else {
+        guard let address = sender.addresses?.first,
+            txtRecordData = sender.TXTRecordData(),
+            txtRecord = ServerTXTRecord(data: txtRecordData) else {
             return
         }
         
+        
         tcpConnection.connect(address, success: { [weak self] in
             let host = self?.tcpConnection.socket.connectedHost
-            let port = UInt16(5126)
-            self?.joystickChannel = self?.inputConnection.registerWriteChannel(3, host: host, port: port, type: JoystickChanged.self)
-            self?.buttonChannel = self?.inputConnection.registerWriteChannel(4, host: host, port: port, type: ButtonChanged.self)
+            let port = UInt16(txtRecord.inputPort)
+            self?.joystickChannel = self?.inputConnection.registerWriteChannel(3, host: host, port: port, type: RemoteMessage<JoystickChanged>.self)
+            self?.buttonChannel = self?.inputConnection.registerWriteChannel(4, host: host, port: port, type: RemoteMessage<ButtonChanged>.self)
             if let name = self?.controller.state.name.value {
-                self?.nameChannel.send(SetControllerName(name: name))
+                let message = RemoteMessage(message: SetControllerName(name: name), controllerIdx: self!.controller.index)
+                self?.nameChannel.send(message)
             }
-        }, error: { error in
-        
-        }, disconnect: {
-        
+        }, error: { [weak self] error in
+            if let s = self {
+                s.delegate?.client(s, encounteredError: error)
+            }
+        }, disconnect: { [weak self] in
+            if let s = self {
+                s.delegate?.client(s, disconnectedFromService: sender)
+            }
         })
         
     }
     
     public func netService(sender: NSNetService, didNotResolve errorDict: [String : NSNumber]) {
-
+        if let domain = errorDict[NSNetServicesErrorDomain] as? Int,
+            code = errorDict[NSNetServicesErrorCode] as? Int {
+                self.delegate?.client(self, encounteredError: NetServiceError(domain: domain, code: code))
+        }
     }
 }

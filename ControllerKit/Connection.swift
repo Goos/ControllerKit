@@ -126,6 +126,9 @@ final class UDPConnection : NSObject, MultiplexConnection, GCDAsyncUdpSocketDele
     private(set) var socket: GCDAsyncUdpSocket!
     private(set) var connected: Bool
     private(set) var listening: Bool
+    var port: UInt16 {
+        return socket.localPort()
+    }
     private var inputChannels: [String:ReadableChannel] = [:]
     private var outputChannels: [String:WritableChannel] = [:]
     

@@ -145,18 +145,18 @@ public func GamepadStateReducer(state: GamepadState, message: Message) -> Gamepa
     case let m as ConnectionChanged:
         state.status = m.status
     case let m as SetGamepadType:
-        if m.controllerType == state.type { break }
-        if state.type == .Micro && m.controllerType == .Regular {
+        if m.gamepad == state.type { break }
+        if state.type == .Micro && m.gamepad == .Regular {
             state.buttonB.value = ButtonState(value: 0, pressed: false)
             state.buttonY.value = ButtonState(value: 0, pressed: false)
             state.leftShoulder.value = ButtonState(value: 0, pressed: false)
             state.rightShoulder.value = ButtonState(value: 0, pressed: false)
-        } else if m.controllerType == .Extended {
+        } else if m.gamepad == .Extended {
             state.leftTrigger.value = ButtonState(value: 0, pressed: false)
             state.rightTrigger.value = ButtonState(value: 0, pressed: false)
             state.leftThumbstick.value = JoystickState(xAxis: 0, yAxis: 0)
             state.rightThumbstick.value = JoystickState(xAxis: 0, yAxis: 0)
-        } else if m.controllerType == .Micro {
+        } else if m.gamepad == .Micro {
             state.buttonB.value = nil
             state.buttonY.value = nil
             state.leftShoulder.value = nil
@@ -165,13 +165,13 @@ public func GamepadStateReducer(state: GamepadState, message: Message) -> Gamepa
             state.rightTrigger.value = nil
             state.leftThumbstick.value = nil
             state.rightThumbstick.value = nil
-        } else if m.controllerType == .Regular {
+        } else if m.gamepad == .Regular {
             state.leftTrigger.value = nil
             state.rightTrigger.value = nil
             state.leftThumbstick.value = nil
             state.rightThumbstick.value = nil
         }
-        state.type = m.controllerType
+        state.type = m.gamepad
     case let m as ButtonChanged:
         switch(m.button) {
         case .A: if let s = m.state { state.buttonA.value = s }
@@ -198,6 +198,7 @@ public func GamepadStateReducer(state: GamepadState, message: Message) -> Gamepa
 }
 
 public final class Controller : NSObject {
+    public var index: UInt16 = 0
     internal let throttler: ThrottlingTransformer?
     internal let inputHandler: Actor<GamepadState>
     public var state: GamepadState {
@@ -205,8 +206,6 @@ public final class Controller : NSObject {
     }
     
     public init(nativeController: GCController, queue: Queueable = dispatch_get_main_queue().queueable()) {
-        throttler = ThrottlingTransformer(interval: 1.0 / 60.0)
-        
         var type: GamepadType
         if nativeController.extendedGamepad != nil {
             type = .Extended
@@ -215,6 +214,8 @@ public final class Controller : NSObject {
         } else {
             type = .Micro
         }
+        
+        throttler = ThrottlingTransformer(interval: 1.0 / 60.0)
         
         inputHandler = Actor(initialState: GamepadState(type: type), transformers: [throttler!.receive], reducer: GamepadStateReducer, processingQueue: queue)
         pipe(nativeController, inputHandler)

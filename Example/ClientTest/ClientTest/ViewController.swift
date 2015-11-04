@@ -17,21 +17,38 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
     var server: Server!
     var joystickView: JoystickView!
     var controller: Controller?
-
+    var leftStickView: JoystickView!
+    var rightStickView: JoystickView!
+    var dpadView: JoystickView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        let state = GamepadState(type: .Micro)
-//        inputHandler = ControllerInputHandler(state, processingQueue: NSRunLoop.mainRunLoop())
-//        let controller = Controller(inputHandler: inputHandler)
-//        client = Client(name: "TestClient", controller: controller)
-//        client.delegate = self
-//        client.start()
-
-//        joystickView = JoystickView(frame: self.view.bounds)
-//        joystickView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
-//        self.view.addSubview(joystickView)
-        server = Server(name: "TestServer", controllerTypes: [.MFi])
+        server = Server(name: "TestServer", controllerTypes: [.Remote])
+        server.delegate = self
+        server.start()
+        
+        leftStickView = JoystickView()
+        rightStickView = JoystickView()
+        dpadView = JoystickView()
+        
+        leftStickView.translatesAutoresizingMaskIntoConstraints = false
+        rightStickView.translatesAutoresizingMaskIntoConstraints = false
+        dpadView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(leftStickView)
+        view.addSubview(rightStickView)
+        view.addSubview(dpadView)
+        
+        let views = ["leftStickView": leftStickView, "rightStickView": rightStickView, "dpadView": dpadView]
+        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-(>=30)-[leftStickView(80)]-(16)-[rightStickView(80)]-(>=30)-|", options: [], metrics: nil, views: views))
+        view.addConstraint(NSLayoutConstraint(item: leftStickView, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1.0, constant: -44.0))
+        view.addConstraint(NSLayoutConstraint(item: dpadView, attribute: .CenterX, relatedBy: .Equal, toItem: view, attribute: .CenterX, multiplier: 1.0, constant: -44.0))
+        view.addConstraint(NSLayoutConstraint(item: dpadView, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 80.0))
+        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
+        view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
+        
+        server = Server(name: "TestServer")
         server.delegate = self
         server.start()
     }
@@ -71,7 +88,6 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
     }
     
     func client(client: Client, disconnectedFromService service: NSNetService) {
-    
     }
     
     func client(client: Client, encounteredError error: ErrorType) {
@@ -79,15 +95,16 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
     }
     
     func server(server: Server, controllerConnected controller: Controller, type: ControllerType) {
-        print("Found controller: \(controller.state.name.value)")
-        self.controller = controller
+        controller.state.leftThumbstick.observe { change in
+            self.leftStickView.state = change.new!
+        }
+        controller.state.rightThumbstick.observe { change in
+            self.rightStickView.state = change.new!
+        }
+        controller.state.dpad.observe { change in
+            self.dpadView.state = change.new
+        }
         
-        client = Client(name: "TestController", controller: controller)
-        client?.delegate = self
-        client?.start()
-//        controller.state.dpad.observe { change in
-//            self.joystickView.state = change.new
-//        }
     }
     
     func server(server: Server, controllerDisconnected controller: Controller) {
@@ -100,13 +117,16 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
 }
 
 class JoystickView : UIView {
-    var state: JoystickState = JoystickState(xAxis: 0, yAxis: 0)
-    var displayLink: CADisplayLink!
+    var state: JoystickState = JoystickState(xAxis: 0, yAxis: 0) {
+        didSet {
+            dispatch_async(dispatch_get_main_queue()) {
+                self.setNeedsDisplay()
+            }
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        displayLink = CADisplayLink(target: self, selector: "linkFired")
-        displayLink.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: NSDefaultRunLoopMode)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -123,9 +143,8 @@ class JoystickView : UIView {
         CGContextClearRect(ctx, rect)
         CGContextSetLineWidth(ctx, 2.0)
         CGContextSetStrokeColorWithColor(ctx, UIColor.greenColor().CGColor)
-        CGContextMoveToPoint(ctx, frame.midX, frame.midY)
-        CGContextAddLineToPoint(ctx, CGFloat(state.xAxis) * frame.midX + frame.midX, CGFloat(state.yAxis) * frame.midY + frame.midY)
+        CGContextMoveToPoint(ctx, rect.midX, rect.midY)
+        CGContextAddLineToPoint(ctx, CGFloat(state.xAxis) * rect.midX + rect.midX, CGFloat(state.yAxis) * rect.midY + rect.midY)
         CGContextStrokePath(ctx)
-        
     }
 }

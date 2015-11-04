@@ -20,10 +20,10 @@ public struct ConnectionChanged : Message {
 
 public struct SetGamepadType : Message {
     public let type = "SetGamepadType"
-    public let controllerType: GamepadType
+    public let gamepad: GamepadType
     
     public init(type: GamepadType) {
-        controllerType = type
+        gamepad = type
     }
 }
 

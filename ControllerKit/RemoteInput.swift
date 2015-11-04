@@ -9,6 +9,38 @@
 import Foundation
 import Act
 
+struct RemoteMessage<T: protocol<Message, Marshallable>> : Message, Marshallable {
+    let type = "RemoteMessage"
+    let message: T
+    let controllerIdx: UInt16
+    
+    init(message: T, controllerIdx: UInt16) {
+        self.message = message
+        self.controllerIdx = controllerIdx
+    }
+    
+    init?(data: NSData) {
+        var swappedIdx = UInt16()
+        data.getBytes(&swappedIdx, range: NSMakeRange(0, sizeof(UInt16)))
+        let idx = CFSwapInt16LittleToHost(swappedIdx)
+        let messageData = data.subdataWithRange(NSMakeRange(sizeof(UInt16), data.length - sizeof(UInt16)))
+        if let message = T(data: messageData) {
+            self.init(message: message, controllerIdx: idx)
+        } else {
+            return nil
+        }
+    }
+    
+    func marshal() -> NSData {
+        let data = NSMutableData()
+        let messageData = message.marshal()
+        var swappedIdx = CFSwapInt16HostToLittle(controllerIdx)
+        data.appendBytes(&swappedIdx, length: sizeof(UInt16))
+        data.appendData(messageData)
+        return data
+    }
+}
+
 extension JoystickChanged : Marshallable {
     init?(data: NSData) {
         let typeSize = sizeof(UInt16)
@@ -104,7 +136,7 @@ extension SetGamepadType : Marshallable {
         var rawType = UInt16()
         data.getBytes(&rawType, length: sizeof(UInt16))
         if let gamepad = GamepadType(rawValue: rawType) {
-            self.controllerType = gamepad
+            self.gamepad = gamepad
         } else {
             return nil
         }
@@ -112,7 +144,7 @@ extension SetGamepadType : Marshallable {
     
     func marshal() -> NSData {
         let data = NSMutableData()
-        var rawType = controllerType.rawValue
+        var rawType = gamepad.rawValue
         data.appendBytes(&rawType, length: sizeof(UInt16))
         return data
     }
@@ -125,7 +157,7 @@ final class ThrottledBuffer<T> {
     private let queue: dispatch_queue_t
     private let handler: (T) -> ()
     
-    init(interval: NSTimeInterval, queue: dispatch_queue_t = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), handler: (T) -> ()) {
+    init(interval: NSTimeInterval, queue: dispatch_queue_t = dispatch_queue_create("com.controllerkit.throttler", DISPATCH_QUEUE_SERIAL), handler: (T) -> ()) {
         self.interval = interval
         self.queue = queue
         self.handler = handler
@@ -134,16 +166,18 @@ final class ThrottledBuffer<T> {
     }
     
     func insert(element: T) {
-        self.element = element
-        if !waiting {
-            handler(element)
-            self.element = nil
-            
-            waiting = true
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(interval * Double(NSEC_PER_SEC))), queue) {
-                self.waiting = false
-                if let elem = self.element {
-                    self.handler(elem)
+        dispatch_async(queue) {
+            self.element = element
+            if !self.waiting {
+                self.handler(element)
+                self.element = nil
+                
+                self.waiting = true
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(self.interval * Double(NSEC_PER_SEC))), self.queue) {
+                    self.waiting = false
+                    if let elem = self.element {
+                        self.handler(elem)
+                    }
                 }
             }
         }
