@@ -71,8 +71,8 @@
 		F65EA95C1BDEFCCD00167F45 /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8EE1BDED6E700167F45 /* AsyncSocket.m */; };
 		F65EA95D1BDEFCCD00167F45 /* AsyncUdpSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = F65EA8EF1BDED6E700167F45 /* AsyncUdpSocket.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F65EA95E1BDEFCCD00167F45 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8F01BDED6E700167F45 /* AsyncUdpSocket.m */; };
-		F695B6E61BE8DD600014C34C /* Act.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F695B6E51BE8DD600014C34C /* Act.framework */; };
 		F695B6E81BE8DD670014C34C /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F695B6E71BE8DD670014C34C /* GameController.framework */; };
+		F6A6E8AA1BEA832800BC9809 /* Act.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6A6E8A91BEA832800BC9809 /* Act.framework */; };
 		F6CA35E81BE3AF7400A08132 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6CA35E71BE3AF7400A08132 /* IOKit.framework */; };
 		F6CA35EA1BE3B66600A08132 /* HIDInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6CA35E91BE3B66600A08132 /* HIDInput.swift */; };
 		F6CA35EB1BE3B66600A08132 /* HIDInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6CA35E91BE3B66600A08132 /* HIDInput.swift */; };
@@ -119,8 +119,8 @@
 		F65EA9351BDEF99B00167F45 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
 		F65EA9391BDEF9E700167F45 /* Act.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Act.framework; path = Carthage/Build/Mac/Act.framework; sourceTree = "<group>"; };
 		F65EA9431BDEFC6200167F45 /* ControllerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ControllerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F695B6E51BE8DD600014C34C /* Act.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Act.framework; path = "../../../Library/Developer/Xcode/DerivedData/ControllerKit-hijpabsuvimbambtgdmnobuuevva/Build/Products/Debug-iphoneos/Act.framework"; sourceTree = "<group>"; };
 		F695B6E71BE8DD670014C34C /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.0.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
+		F6A6E8A91BEA832800BC9809 /* Act.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Act.framework; path = Carthage/Build/tvOS/Act.framework; sourceTree = "<group>"; };
 		F6CA35E71BE3AF7400A08132 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/IOKit.framework; sourceTree = DEVELOPER_DIR; };
 		F6CA35E91BE3B66600A08132 /* HIDInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HIDInput.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -131,7 +131,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F695B6E81BE8DD670014C34C /* GameController.framework in Frameworks */,
-				F695B6E61BE8DD600014C34C /* Act.framework in Frameworks */,
+				F6A6E8AA1BEA832800BC9809 /* Act.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,9 +219,7 @@
 		F65EA8A11BDC44D300167F45 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F695B6E71BE8DD670014C34C /* GameController.framework */,
-				F695B6E51BE8DD600014C34C /* Act.framework */,
-				F6CA35E71BE3AF7400A08132 /* IOKit.framework */,
+				F6A6E8A81BEA831400BC9809 /* tvOS */,
 				F65EA93B1BDEF9F400167F45 /* OSX */,
 				F65EA93C1BDEF9FA00167F45 /* iOS */,
 			);
@@ -254,6 +252,7 @@
 		F65EA93B1BDEF9F400167F45 /* OSX */ = {
 			isa = PBXGroup;
 			children = (
+				F6CA35E71BE3AF7400A08132 /* IOKit.framework */,
 				F65EA9391BDEF9E700167F45 /* Act.framework */,
 				F65EA9351BDEF99B00167F45 /* GameController.framework */,
 			);
@@ -267,6 +266,15 @@
 				F65EA89F1BDC44C900167F45 /* Act.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		F6A6E8A81BEA831400BC9809 /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				F6A6E8A91BEA832800BC9809 /* Act.framework */,
+				F695B6E71BE8DD670014C34C /* GameController.framework */,
+			);
+			name = tvOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -551,6 +559,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/tvOS",
+				);
 				INFOPLIST_FILE = ControllerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -570,6 +582,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/tvOS",
+				);
 				INFOPLIST_FILE = ControllerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -686,7 +702,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = ControllerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.goos.ControllerKit;
 				PRODUCT_NAME = ControllerKit;
@@ -711,7 +727,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = ControllerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.goos.ControllerKit;
 				PRODUCT_NAME = ControllerKit;
