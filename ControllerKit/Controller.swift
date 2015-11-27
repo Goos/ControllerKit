@@ -37,6 +37,7 @@ public func GamepadStateReducer(state: GamepadState, message: Message) -> Gamepa
         case .RT: s.rightTrigger = m.value
         case .Pause: break
         }
+        return s
     case let m as JoystickMessage:
         var s = state
         switch(m.joystick) {
