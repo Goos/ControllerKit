@@ -16,7 +16,7 @@ public protocol ControllerBrowserDelegate : class {
     func controllerBrowser(browser: ControllerBrowser, encounteredError error: NSError)
 }
 
-public enum ControllerType {
+public enum ControllerType : Int {
     case MFi
     case HID
     case Remote
