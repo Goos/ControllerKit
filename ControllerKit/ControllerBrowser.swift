@@ -62,10 +62,9 @@ public final class ControllerBrowser : NSObject, HIDManagerDelegate, NSNetServic
     public weak var delegate: ControllerBrowserDelegate?
     
     public var controllers: [Controller] {
-        return [Array(mfiControllers.values), Array(remoteControllers.values), Array(hidControllers)].flatMap { $0 }
+        return [Array(mfiControllers.values), remotePeers.flatMap { $1.controllers.values }, Array(hidControllers)].flatMap { $0 }
     }
     private var mfiControllers: [GCControllerPlayerIndex:Controller] = [:]
-    private var remoteControllers: [String:Controller] = [:]
     private var hidControllers: Set<Controller> = []
     
     private let controllerTypes: Set<ControllerType>

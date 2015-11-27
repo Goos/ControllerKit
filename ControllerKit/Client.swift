@@ -145,7 +145,6 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
             }
             let host = client.tcpConnection.socket.connectedHost
             let port = UInt16(txtRecord.inputPort)
-//            self?.connectChannel = client.inputConnection.registerWriteChannel(1, host: host, port: port, type: ControllerConnectedMessage.self)
             self?.gamepadChannel = client.inputConnection.registerWriteChannel(3, host: host, port: port, type: RemoteMessage<GamepadMessage>.self)
             for (index, controller) in client.controllers {
                 let message = ControllerConnectedMessage(index: index, layout: controller.layout, name: controller.name)

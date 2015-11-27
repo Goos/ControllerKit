@@ -23,16 +23,16 @@ class ViewController: UIViewController, ClientDelegate, ControllerBrowserDelegat
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        
-//        server = ControllerBrowser(name: "TestServer", controllerTypes: [.Remote])
-//        server.delegate = self
-//        server.start()
         
-        inputHandler = ControllerInputHandler(GamepadState(layout: .Micro), processingQueue: NSRunLoop.mainRunLoop())
-        controller = Controller(inputHandler: inputHandler)
+        server = ControllerBrowser(name: "TestServer", controllerTypes: [.Remote])
+        server.delegate = self
+        server.start()
         
-        client = Client(name: "testclient", controllers: [controller])
-        client.delegate = self
+//        inputHandler = ControllerInputHandler(GamepadState(layout: .Micro), processingQueue: NSRunLoop.mainRunLoop())
+//        controller = Controller(inputHandler: inputHandler)
+        
+//        client = Client(name: "testclient", controllers: [controller])
+//        client.delegate = self
         
         leftStickView = JoystickView()
         rightStickView = JoystickView()
@@ -54,20 +54,20 @@ class ViewController: UIViewController, ClientDelegate, ControllerBrowserDelegat
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
         
-        client.start()
+//        client.start()
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        sendInput(touches, withEvent: event)
-    }
-    
-    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        sendInput(touches, withEvent: event)
-    }
-    
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        sendInput(touches, withEvent: event)
-    }
+//    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+//        sendInput(touches, withEvent: event)
+//    }
+//    
+//    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
+//        sendInput(touches, withEvent: event)
+//    }
+//    
+//    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+//        sendInput(touches, withEvent: event)
+//    }
     
     func sendInput(touches: Set<UITouch>, withEvent event: UIEvent?) {
         let firstTouch = touches.first
