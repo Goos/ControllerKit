@@ -83,7 +83,11 @@ public final class ControllerBrowser : NSObject, HIDManagerDelegate, NSNetServic
     private let inputQueue = dispatch_queue_create("com.controllerkit.input_queue", DISPATCH_QUEUE_SERIAL)
     private let queueable: DispatchQueueable
     
-    public init(name: String, serviceIdentifier: String = "controllerkit", controllerTypes: Set<ControllerType> = [.MFi, .HID, .Remote]) {
+    public convenience init(name: String) {
+        self.init(name: name, controllerTypes: [.MFi, .HID, .Remote])
+    }
+    
+    public init(name: String, serviceIdentifier: String = "controllerkit", controllerTypes: Set<ControllerType>) {
         self.name = name
         self.serviceIdentifier = serviceIdentifier
         self.controllerTypes = controllerTypes
