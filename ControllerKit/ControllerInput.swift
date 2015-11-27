@@ -9,26 +9,17 @@
 import Foundation
 import Act
 
-public struct ConnectionChanged : Message {
-    public let type = "ConnectionChanged"
-    public let status: ConnectionStatus
+public struct GamepadLayoutMessage : Message {
+    public let type = "GamepadLayoutMessage"
+    public let layout: GamepadLayout
     
-    public init(status: ConnectionStatus) {
-        self.status = status
+    public init(layout: GamepadLayout) {
+        self.layout = layout
     }
 }
 
-public struct SetGamepadType : Message {
-    public let type = "SetGamepadType"
-    public let gamepad: GamepadType
-    
-    public init(type: GamepadType) {
-        gamepad = type
-    }
-}
-
-public struct SetControllerName : Message {
-    public let type = "SetControllerName"
+public struct ControllerNameMessage : Message {
+    public let type = "ControllerNameMessage"
     public let name: String?
     
     public init(name: String?) {
@@ -36,24 +27,33 @@ public struct SetControllerName : Message {
     }
 }
 
-public struct ButtonChanged : Message {
-    public let type = "ButtonChanged"
+public struct ButtonMessage : Message {
+    public let type = "ButtonMessage"
     public let button: ButtonType
-    public let state: ButtonState?
+    public let value: Float
     
-    public init(button: ButtonType, state: ButtonState?) {
+    public init(button: ButtonType, value: Float) {
         self.button = button
+        self.value = value
+    }
+}
+
+public struct JoystickMessage : Message {
+    public let type = "JoystickMessage"
+    public let joystick: JoystickType
+    public let state: JoystickState
+    
+    public init(joystick: JoystickType, state: JoystickState) {
+        self.joystick = joystick
         self.state = state
     }
 }
 
-public struct JoystickChanged : Message {
-    public let type = "JoystickChanged"
-    public let joystick: JoystickType
-    public let state: JoystickState?
+public struct GamepadMessage : Message {
+    public let type = "GamepadMessage"
+    public let state: GamepadState
     
-    public init(joystick: JoystickType, state: JoystickState?) {
-        self.joystick = joystick
+    public init(state: GamepadState) {
         self.state = state
     }
 }

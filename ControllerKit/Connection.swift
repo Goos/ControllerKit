@@ -98,14 +98,14 @@ final class WriteChannel<T: Marshallable> : WritableChannel {
 }
 
 protocol ReadConnection : class {
-    func listen(localPort: UInt16, success: (() -> ())?, error: ((ErrorType) -> ())?, disconnect: (() -> ())?)
+    func listen(localPort: UInt16, success: (() -> ())?, error: ((NSError) -> ())?, disconnect: (() -> ())?)
     func registerReadChannel<T: Marshallable>(identifier: UInt16, host: String?, type: T.Type) -> ReadChannel<T>?
     func deregisterReadChannel<T: Marshallable>(channel: ReadChannel<T>)
 }
 
 protocol WriteConnection : class {
-    func connect(host: String, port: UInt16, success: (() -> ())?, error: ((ErrorType) -> ())?, disconnect: (() -> ())?)
-    func connect(address: NSData, success: (() -> ())?, error: ((ErrorType) -> ())?, disconnect: (() -> ())?)
+    func connect(host: String, port: UInt16, success: (() -> ())?, error: ((NSError) -> ())?, disconnect: (() -> ())?)
+    func connect(address: NSData, success: (() -> ())?, error: ((NSError) -> ())?, disconnect: (() -> ())?)
     func disconnect()
     func send(data: NSData, host: String?, port: UInt16?)
     func registerWriteChannel<T: Marshallable>(identifier: UInt16, host: String?, port: UInt16?, type: T.Type) -> WriteChannel<T>?
@@ -133,7 +133,7 @@ final class UDPConnection : NSObject, MultiplexConnection, GCDAsyncUdpSocketDele
     private var outputChannels: [String:WritableChannel] = [:]
     
     var onSuccess: (() -> ())?
-    var onError: ((ErrorType) -> ())?
+    var onError: ((NSError) -> ())?
     var onDisconnect: (() -> ())?
     
     convenience override init() {
@@ -147,7 +147,7 @@ final class UDPConnection : NSObject, MultiplexConnection, GCDAsyncUdpSocketDele
         socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: delegateQueue, socketQueue: socketQueue)
     }
     
-    func connect(host: String, port: UInt16, success: (() -> ())?, error: ((ErrorType) -> ())?, disconnect: (() -> ())?) {
+    func connect(host: String, port: UInt16, success: (() -> ())?, error: ((NSError) -> ())?, disconnect: (() -> ())?) {
         if connected { return }
         
         onSuccess = success
@@ -156,12 +156,12 @@ final class UDPConnection : NSObject, MultiplexConnection, GCDAsyncUdpSocketDele
         
         do {
             try socket.connectToHost(host, onPort: port)
-        } catch let err {
+        } catch let err as NSError {
             onError?(err)
         }
     }
     
-    func connect(address: NSData, success: (() -> ())?, error: ((ErrorType) -> ())?, disconnect: (() -> ())?) {
+    func connect(address: NSData, success: (() -> ())?, error: ((NSError) -> ())?, disconnect: (() -> ())?) {
         if connected { return }
         
         onSuccess = success
@@ -170,7 +170,7 @@ final class UDPConnection : NSObject, MultiplexConnection, GCDAsyncUdpSocketDele
         
         do {
             try socket.connectToAddress(address)
-        } catch let err {
+        } catch let err as NSError {
             onError?(err)
         }
     }
@@ -179,7 +179,7 @@ final class UDPConnection : NSObject, MultiplexConnection, GCDAsyncUdpSocketDele
         socket.close()
     }
     
-    func listen(localPort: UInt16, success: (() -> ())? = nil, error: ((ErrorType) -> ())? = nil, disconnect: (() -> ())? = nil) {
+    func listen(localPort: UInt16, success: (() -> ())? = nil, error: ((NSError) -> ())? = nil, disconnect: (() -> ())? = nil) {
         if listening { return }
         
         onSuccess = success
@@ -289,7 +289,7 @@ final class TCPConnection : NSObject, MultiplexConnection, GCDAsyncSocketDelegat
     private var outputChannels: [UInt16:WritableChannel] = [:]
     
     var onSuccess: (() -> ())?
-    var onError: ((ErrorType) -> ())?
+    var onError: ((NSError) -> ())?
     var onDisconnect: (() -> ())?
     
     convenience override init() {
@@ -306,10 +306,11 @@ final class TCPConnection : NSObject, MultiplexConnection, GCDAsyncSocketDelegat
         self.socket = socket
         connected = true
         super.init()
-        socket.setDelegate(self, delegateQueue: delegateQueue)
+        socket.synchronouslySetDelegate(self, delegateQueue: delegateQueue)
+        socket.readDataWithTimeout(-1, tag: 0)
     }
     
-    func connect(host: String, port: UInt16, success: (() -> ())?, error onError: ((ErrorType) -> ())?, disconnect onDisconnect: (() -> ())?) {
+    func connect(host: String, port: UInt16, success: (() -> ())?, error onError: ((NSError) -> ())?, disconnect onDisconnect: (() -> ())?) {
         if connected { return }
         
         self.onSuccess = success
@@ -318,12 +319,12 @@ final class TCPConnection : NSObject, MultiplexConnection, GCDAsyncSocketDelegat
         
         do {
             try socket.connectToHost(host, onPort: port)
-        } catch {
-            onError?(error)
+        } catch let err as NSError {
+            onError?(err)
         }
     }
     
-    func connect(address: NSData, success: (() -> ())?, error onError: ((ErrorType) -> ())?, disconnect onDisconnect: (() -> ())?) {
+    func connect(address: NSData, success: (() -> ())?, error onError: ((NSError) -> ())?, disconnect onDisconnect: (() -> ())?) {
         if connected { return }
         
         self.onSuccess = success
@@ -332,8 +333,8 @@ final class TCPConnection : NSObject, MultiplexConnection, GCDAsyncSocketDelegat
         
         do {
             try socket.connectToAddress(address)
-        } catch {
-            onError?(error)
+        } catch let err as NSError {
+            onError?(err)
         }
     }
     
@@ -345,7 +346,7 @@ final class TCPConnection : NSObject, MultiplexConnection, GCDAsyncSocketDelegat
         socket.writeData(payload, withTimeout: -1, tag: 0)
     }
     
-    func listen(localPort: UInt16, success: (() -> ())? = nil, error: ((ErrorType) -> ())? = nil, disconnect: (() -> ())? = nil) {
+    func listen(localPort: UInt16, success: (() -> ())? = nil, error: ((NSError) -> ())? = nil, disconnect: (() -> ())? = nil) {
     }
     
     func registerReadChannel<T: Marshallable>(identifier: UInt16, host: String? = nil, type: T.Type) -> ReadChannel<T>? {
@@ -374,11 +375,16 @@ final class TCPConnection : NSObject, MultiplexConnection, GCDAsyncSocketDelegat
     
     // MARK: GCDAsyncSocketDelegate
     func socket(sock: GCDAsyncSocket!, didConnectToHost host: String!, port: UInt16) {
+        socket.readDataWithTimeout(-1, tag: 0)
         onSuccess?()
     }
     
     func socketDidDisconnect(sock: GCDAsyncSocket!, withError err: NSError!) {
         onDisconnect?()
+    }
+    
+    func socket(sock: GCDAsyncSocket!, didWriteDataWithTag tag: Int) {
+    
     }
     
     func socket(sock: GCDAsyncSocket!, didReadData data: NSData!, withTag tag: Int) {

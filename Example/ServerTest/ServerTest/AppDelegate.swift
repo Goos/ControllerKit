@@ -10,13 +10,14 @@ import Cocoa
 import ControllerKit
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate, ServerDelegate, ClientDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBrowserDelegate {
 
     @IBOutlet weak var window: NSWindow!
     var leftStickView: JoystickView!
     var rightStickView: JoystickView!
     var dpadView: JoystickView!
-    var server: Server!
+    var browser: ControllerBrowser!
+    var controller: Controller!
     var client: Client?
 
     func applicationDidFinishLaunching(aNotification: NSNotification) {
@@ -40,34 +41,33 @@ class AppDelegate: NSObject, NSApplicationDelegate, ServerDelegate, ClientDelega
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
         
-        server = Server(name: "TestServer", controllerTypes: [.HID])
-        server.delegate = self
-        server.start()
+        browser = ControllerBrowser(name: "TestServer", controllerTypes: [.Remote, .HID])
+        browser.delegate = self
+        browser.start()
     }
     
-    func server(server: Server, controllerConnected controller: Controller, type: ControllerType) {
-        print("Found controller: \(controller.state.name.value)")
-        client = Client(name: "Test", controller: controller)
-        client?.delegate = self
-        client?.start()
+    func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller, type: ControllerType) {
+        print("found controller: \(controller)")
+        controller.leftThumbstick.valueChangedHandler = { (xAxis, yAxis) in
+            self.leftStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
+        }
         
-//        controller.state.leftThumbstick.observe { change in
-//            self.leftStickView.state = change.new!
-//        }
-//        controller.state.rightThumbstick.observe { change in
-//            self.rightStickView.state = change.new!
-//        }
-//        controller.state.dpad.observe { change in
-//            self.dpadView.state = change.new
-//        }
+        controller.rightThumbstick.valueChangedHandler = { (xAxis, yAxis) in
+            self.rightStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
+        }
+        
+        controller.dpad.valueChangedHandler = { (xAxis, yAxis) in
+            self.dpadView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
+        }
+        
     }
     
-    func server(server: Server, controllerDisconnected controller: Controller) {
-        print("Disconnected controller: \(controller.state.name.value)")
+    func controllerBrowser(browser: ControllerBrowser, controllerDisconnected controller: Controller) {
+        print("Disconnected controller: \(controller)")
     }
     
-    func server(server: Server, encounteredError error: ErrorType) {
-        print(error)
+    func controllerBrowser(browser: ControllerBrowser, encounteredError error: NSError) {
+        print("Encountered error: \(error)")
     }
     
     func client(client: Client, discoveredService service: NSNetService) {
@@ -86,7 +86,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ServerDelegate, ClientDelega
     
     }
     
-    func client(client: Client, encounteredError error: ErrorType) {
+    func client(client: Client, encounteredError error: NSError) {
         print(error)
     }
 

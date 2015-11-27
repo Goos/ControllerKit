@@ -12,13 +12,12 @@ import Act
 
 func pipe(nativeController: GCController, _ inputHandler: Actor<GamepadState>) {
     func buttonChanged(buttonType: ButtonType, value: Float, pressed: Bool) {
-        let state = ButtonState(value: value, pressed: pressed)
-        inputHandler.send(ButtonChanged(button: buttonType, state: state))
+        inputHandler.send(ButtonMessage(button: buttonType, value: value))
     }
     
     func joystickChanged(joystick: JoystickType, xAxis: Float, yAxis: Float) {
         let state = JoystickState(xAxis: xAxis, yAxis: yAxis)
-        inputHandler.send(JoystickChanged(joystick: joystick, state: state))
+        inputHandler.send(JoystickMessage(joystick: joystick, state: state))
     }
     
     if let gamepad = nativeController.extendedGamepad {

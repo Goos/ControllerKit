@@ -10,23 +10,29 @@ import UIKit
 import ControllerKit
 import Act
 
-class ViewController: UIViewController, ClientDelegate, ServerDelegate {
+class ViewController: UIViewController, ClientDelegate, ControllerBrowserDelegate {
 
-    var inputHandler: Actor<GamepadState>!
-    var client: Client?
-    var server: Server!
+    var inputHandler: ObservableActor<GamepadState>!
+    var controller: Controller!
+    var client: Client!
+    var server: ControllerBrowser!
     var joystickView: JoystickView!
-    var controller: Controller?
     var leftStickView: JoystickView!
     var rightStickView: JoystickView!
     var dpadView: JoystickView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+//        
+//        server = ControllerBrowser(name: "TestServer", controllerTypes: [.Remote])
+//        server.delegate = self
+//        server.start()
         
-        server = Server(name: "TestServer", controllerTypes: [.Remote])
-        server.delegate = self
-        server.start()
+        inputHandler = ControllerInputHandler(GamepadState(layout: .Micro), processingQueue: NSRunLoop.mainRunLoop())
+        controller = Controller(inputHandler: inputHandler)
+        
+        client = Client(name: "testclient", controllers: [controller])
+        client.delegate = self
         
         leftStickView = JoystickView()
         rightStickView = JoystickView()
@@ -48,9 +54,7 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
         
-        server = Server(name: "TestServer")
-        server.delegate = self
-        server.start()
+        client.start()
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -66,13 +70,13 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
     }
     
     func sendInput(touches: Set<UITouch>, withEvent event: UIEvent?) {
-//        let firstTouch = touches.first
-//        let point = firstTouch!.locationInView(view)
-//        let relativeX = (point.x - view.center.x) / view.center.x
-//        let relativeY = (view.center.y - point.y) / view.center.y
-//        let message = JoystickChanged(joystick: .Dpad, state: JoystickState(xAxis: Float(relativeX), yAxis: Float(relativeY)))
-//        
-//        controller?.inputHandler.send(message)
+        let firstTouch = touches.first
+        let point = firstTouch!.locationInView(view)
+        let relativeX = (point.x - view.center.x) / view.center.x
+        let relativeY = (view.center.y - point.y) / view.center.y
+        let message = JoystickMessage(joystick: .Dpad, state: JoystickState(xAxis: Float(relativeX), yAxis: Float(relativeY)))
+        
+        inputHandler.send(message)
     }
     
     func client(client: Client, discoveredService service: NSNetService) {
@@ -90,29 +94,31 @@ class ViewController: UIViewController, ClientDelegate, ServerDelegate {
     func client(client: Client, disconnectedFromService service: NSNetService) {
     }
     
-    func client(client: Client, encounteredError error: ErrorType) {
+    func client(client: Client, encounteredError error: NSError) {
 
     }
     
-    func server(server: Server, controllerConnected controller: Controller, type: ControllerType) {
-        controller.state.leftThumbstick.observe { change in
-            self.leftStickView.state = change.new!
+    func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller, type: ControllerType) {
+        controller.leftThumbstick.valueChangedHandler = { (xAxis, yAxis) in
+            self.leftStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
         }
-        controller.state.rightThumbstick.observe { change in
-            self.rightStickView.state = change.new!
+        
+        controller.rightThumbstick.valueChangedHandler = { (xAxis, yAxis) in
+            self.rightStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
         }
-        controller.state.dpad.observe { change in
-            self.dpadView.state = change.new
+        
+        controller.dpad.valueChangedHandler = { (xAxis, yAxis) in
+            self.dpadView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
         }
         
     }
     
-    func server(server: Server, controllerDisconnected controller: Controller) {
-        print("Disconnected controller: \(controller.state.name.value)")
+    func controllerBrowser(browser: ControllerBrowser, controllerDisconnected controller: Controller) {
+        print("Disconnected controller: \(controller.name)")
     }
     
-    func server(server: Server, encounteredError error: ErrorType) {
-
+    func controllerBrowser(browser: ControllerBrowser, encounteredError error: NSError) {
+        print("Encountered error: \(error)")
     }
 }
 

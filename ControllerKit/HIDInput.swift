@@ -14,11 +14,7 @@ import Act
 protocol HIDManagerDelegate : class {
     func manager(manager: HIDControllerManager, controllerConnected controller: Controller)
     func manager(manager: HIDControllerManager, controllerDisconnected controller: Controller)
-    func manager(manager: HIDControllerManager, failedWithError error: HIDManagerError)
-}
-
-enum HIDManagerError : ErrorType {
-    case FailedToOpen
+    func manager(manager: HIDControllerManager, encounteredError error: NSError)
 }
 
 #if os(OSX)
@@ -61,7 +57,8 @@ final class HIDControllerManager {
     func start() {
         let status = IOHIDManagerOpen(manager, 0)
         if status != kIOReturnSuccess {
-            self.delegate?.manager(self, failedWithError: .FailedToOpen)
+            let error = NSError(domain: "com.controllerkit.hid", code: 0, userInfo: nil)
+            self.delegate?.manager(self, encounteredError: error)
             return
         }
         
@@ -170,7 +167,7 @@ final class HIDControllerManager {
             }
             
             let throttler = ThrottlingTransformer(interval: 1.0 / 60.0)
-            let inputHandler = Actor<GamepadState>(initialState: GamepadState(type: .Extended), transformers: [transf.receive, throttler.receive], reducer: GamepadStateReducer)
+            let inputHandler = ObservableActor<GamepadState>(initialState: GamepadState(layout: .Extended), transformers: [transf.receive, throttler.receive], reducer: GamepadStateReducer)
             let controller = Controller(inputHandler: inputHandler)
             
             IOHIDDeviceRegisterInputValueCallback(device, { (context, result, sender, value) in
@@ -288,12 +285,11 @@ struct HIDInputTransformer {
             }
             
             if !usesHatSwitch && (xAxis != nil || yAxis != nil) {
-                let dpad = currentState.dpad.value
+                let dpad = currentState.dpad
                 let joystickState = JoystickState(xAxis: xAxis ?? dpad.xAxis, yAxis: yAxis ?? dpad.yAxis)
-                next(JoystickChanged(joystick: .Dpad, state: joystickState))
+                next(JoystickMessage(joystick: .Dpad, state: joystickState))
             } else if button != nil {
-                let buttonState = ButtonState(value: Float(state), pressed: state == 1)
-                next(ButtonChanged(button: button!, state: buttonState))
+                next(ButtonMessage(button: button!, value: Float(state)))
             }
         case kJoystickUsagePage:
             var button: ButtonType?
@@ -303,16 +299,16 @@ struct HIDInputTransformer {
             switch(usage) {
             case leftThumbstickIDs.x:
                 joystick = .LeftThumbstick
-                axes = (analog, currentState.leftThumbstick.value?.yAxis ?? 0.0)
+                axes = (analog, currentState.leftThumbstick.yAxis)
             case leftThumbstickIDs.y:
                 joystick = .LeftThumbstick
-                axes = (currentState.leftThumbstick.value?.xAxis ?? 0.0, analog)
+                axes = (currentState.leftThumbstick.xAxis, analog)
             case rightThumbstickIDs.x:
                 joystick = .RightThumbstick
-                axes = (analog, currentState.rightThumbstick.value?.yAxis ?? 0.0)
+                axes = (analog, currentState.rightThumbstick.yAxis)
             case rightThumbstickIDs.y:
                 joystick = .RightThumbstick
-                axes = (currentState.rightThumbstick.value?.xAxis ?? 0.0, analog)
+                axes = (currentState.rightThumbstick.xAxis, analog)
             case leftTriggerID: button = .LT
             case rightTriggerID: button = .RT
             case kHatSwitchUsage:
@@ -335,10 +331,9 @@ struct HIDInputTransformer {
             
             if joystick != nil {
                 let joystickState = JoystickState(xAxis: axes.x, yAxis: axes.y)
-                next(JoystickChanged(joystick: joystick!, state: joystickState))
+                next(JoystickMessage(joystick: joystick!, state: joystickState))
             } else if button != nil {
-                let buttonState = ButtonState(value: Float(state), pressed: state == 1)
-                next(ButtonChanged(button: button!, state: buttonState))
+                next(ButtonMessage(button: button!, value: Float(state)))
             }
         default: break
         }

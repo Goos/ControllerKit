@@ -14,7 +14,7 @@ public protocol ClientDelegate : class {
     
     func client(client: Client, connectedToService service: NSNetService)
     func client(client: Client, disconnectedFromService service: NSNetService)
-    func client(client: Client, encounteredError error: ErrorType)
+    func client(client: Client, encounteredError error: NSError)
 }
 
 /*!
@@ -30,7 +30,8 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     let name: String
     let serviceIdentifier: String
     
-    let controller: Controller
+    internal(set) var controllers: [UInt16:Controller] = [:]
+    private var observerBlocks: [UInt16:()->()] = [:]
     
     let browser: NSNetServiceBrowser
     private var currentService: NSNetService?
@@ -38,48 +39,61 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     let tcpConnection: TCPConnection
     let inputConnection: UDPConnection
     
-    let nameChannel: WriteChannel<RemoteMessage<SetControllerName>>
-    let gamepadTypeChannel: WriteChannel<RemoteMessage<SetGamepadType>>
-    var joystickChannel: WriteChannel<RemoteMessage<JoystickChanged>>?
-    var buttonChannel: WriteChannel<RemoteMessage<ButtonChanged>>?
+    var connectChannel: WriteChannel<ControllerConnectedMessage>?
+    let nameChannel: WriteChannel<RemoteMessage<ControllerNameMessage>>
+    var gamepadChannel: WriteChannel<RemoteMessage<GamepadMessage>>?
     
     let networkQueue = dispatch_queue_create("com.controllerkit.network", DISPATCH_QUEUE_SERIAL)
     let delegateQueue = dispatch_queue_create("com.controllerkit.delegate", DISPATCH_QUEUE_SERIAL)
     
     public weak var delegate: ClientDelegate?
     
-    public init(name: String, serviceIdentifier: String = "controllerkit", controller: Controller) {
+    public init(name: String, serviceIdentifier: String = "controllerkit", controllers: [Controller]) {
         self.name = name
         self.serviceIdentifier = serviceIdentifier
-        self.controller = controller
         
         browser = NSNetServiceBrowser()
         browser.includesPeerToPeer = false
         tcpConnection = TCPConnection(socketQueue: networkQueue, delegateQueue: delegateQueue)
         inputConnection = UDPConnection(socketQueue: networkQueue, delegateQueue: delegateQueue)
         
-        nameChannel = tcpConnection.registerWriteChannel(1, type: RemoteMessage<SetControllerName>.self)
-        gamepadTypeChannel = tcpConnection.registerWriteChannel(2, type: RemoteMessage<SetGamepadType>.self)
+        connectChannel = tcpConnection.registerWriteChannel(1, type: ControllerConnectedMessage.self)
+        nameChannel = tcpConnection.registerWriteChannel(2, type: RemoteMessage<ControllerNameMessage>.self)
         
         super.init()
         
+        for controller in controllers {
+            addController(controller)
+        }
+        
         browser.delegate = self
-        
-        controller.state.name.observe { self.nameChanged($0.new) }
-        
-        controller.state.buttonA.observe { self.buttonChanged(.A, state: $0.new) }
-        controller.state.buttonB.observe { self.buttonChanged(.B, state: $0.new) }
-        controller.state.buttonX.observe { self.buttonChanged(.X, state: $0.new) }
-        controller.state.buttonY.observe { self.buttonChanged(.Y, state: $0.new) }
-        
-        controller.state.leftShoulder.observe { self.buttonChanged(.LS, state: $0.new) }
-        controller.state.rightShoulder.observe { self.buttonChanged(.RS, state: $0.new) }
-        controller.state.leftTrigger.observe { self.buttonChanged(.LT, state: $0.new) }
-        controller.state.rightTrigger.observe { self.buttonChanged(.RT, state: $0.new) }
-        
-        controller.state.dpad.observe { self.joystickChanged(.Dpad, state: $0.new) }
-        controller.state.leftThumbstick.observe { self.joystickChanged(.LeftThumbstick, state: $0.new) }
-        controller.state.rightThumbstick.observe { self.joystickChanged(.RightThumbstick, state: $0.new) }
+    }
+    
+    public func addController(controller: Controller) {
+        if controllers[controller.index] == nil {
+            controllers[controller.index] = controller
+            let throttler = ThrottledBuffer<GamepadState>(interval: 1.0/60.0, handler: { gamepad in
+                let message = RemoteMessage(message: GamepadMessage(state: gamepad), controllerIndex: controller.index)
+                self.gamepadChannel?.send(message)
+            })
+            
+            observerBlocks[controller.index] = controller.inputHandler.observe { gamepad in
+                throttler.insert(gamepad)
+            }
+            
+            if currentService != nil {
+                for (index, controller) in controllers {
+                    let message = ControllerConnectedMessage(index: index, layout: controller.layout, name: controller.name)
+                    connectChannel?.send(message)
+                }
+            }
+        }
+    }
+    
+    public func removeController(controller: Controller) {
+        observerBlocks[controller.index]?()
+        controllers.removeValueForKey(controller.index)
+        observerBlocks.removeValueForKey(controller.index)
     }
     
     public func start() {
@@ -101,22 +115,6 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
         }
     }
     
-    // MARK: Input forwarding
-    func nameChanged(name: String?) {
-        let message = RemoteMessage(message: SetControllerName(name: name), controllerIdx: controller.index)
-        nameChannel.send(message)
-    }
-    
-    func buttonChanged(button: ButtonType, state: ButtonState?) {
-        let message = RemoteMessage(message: ButtonChanged(button: button, state: state), controllerIdx: controller.index)
-        buttonChannel?.send(message)
-    }
-    
-    func joystickChanged(joystick: JoystickType, state: JoystickState?) {
-        let message = RemoteMessage(message: JoystickChanged(joystick: joystick, state: state), controllerIdx: controller.index)
-        joystickChannel?.send(message)
-    }
-    
     // MARK: NSNetServiceBrowserDelegate
     public func netServiceBrowser(browser: NSNetServiceBrowser, didFindService service: NSNetService, moreComing: Bool) {
         self.delegate?.client(self, discoveredService: service)
@@ -127,9 +125,9 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     }
     
     public func netServiceBrowser(browser: NSNetServiceBrowser, didNotSearch errorDict: [String : NSNumber]) {
-        if let domain = errorDict[NSNetServicesErrorDomain] as? Int,
-            code = errorDict[NSNetServicesErrorCode] as? Int {
-                self.delegate?.client(self, encounteredError: NetServiceError(domain: domain, code: code))
+        if let code = errorDict[NSNetServicesErrorCode] as? Int {
+            let error = NSError(domain: "com.controllerkit.netservice", code: code, userInfo: errorDict)
+            self.delegate?.client(self, encounteredError: error)
         }
     }
     
@@ -141,15 +139,17 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
             return
         }
         
-        
         tcpConnection.connect(address, success: { [weak self] in
-            let host = self?.tcpConnection.socket.connectedHost
+            guard let client = self else {
+                return
+            }
+            let host = client.tcpConnection.socket.connectedHost
             let port = UInt16(txtRecord.inputPort)
-            self?.joystickChannel = self?.inputConnection.registerWriteChannel(3, host: host, port: port, type: RemoteMessage<JoystickChanged>.self)
-            self?.buttonChannel = self?.inputConnection.registerWriteChannel(4, host: host, port: port, type: RemoteMessage<ButtonChanged>.self)
-            if let name = self?.controller.state.name.value {
-                let message = RemoteMessage(message: SetControllerName(name: name), controllerIdx: self!.controller.index)
-                self?.nameChannel.send(message)
+//            self?.connectChannel = client.inputConnection.registerWriteChannel(1, host: host, port: port, type: ControllerConnectedMessage.self)
+            self?.gamepadChannel = client.inputConnection.registerWriteChannel(3, host: host, port: port, type: RemoteMessage<GamepadMessage>.self)
+            for (index, controller) in client.controllers {
+                let message = ControllerConnectedMessage(index: index, layout: controller.layout, name: controller.name)
+                client.connectChannel?.send(message)
             }
         }, error: { [weak self] error in
             if let s = self {
@@ -164,9 +164,9 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     }
     
     public func netService(sender: NSNetService, didNotResolve errorDict: [String : NSNumber]) {
-        if let domain = errorDict[NSNetServicesErrorDomain] as? Int,
-            code = errorDict[NSNetServicesErrorCode] as? Int {
-                self.delegate?.client(self, encounteredError: NetServiceError(domain: domain, code: code))
+        if let code = errorDict[NSNetServicesErrorCode] as? Int {
+            let error = NSError(domain: "com.controllerkit.netservice", code: code, userInfo: errorDict)
+            self.delegate?.client(self, encounteredError: error)
         }
     }
 }

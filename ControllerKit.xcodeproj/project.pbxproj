@@ -14,7 +14,7 @@
 		F632C9841BE44F6F008D94E3 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A21BDC493500167F45 /* Controller.swift */; };
 		F632C9851BE44F6F008D94E3 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8AA1BDC68AA00167F45 /* Observable.swift */; };
 		F632C9861BE44F6F008D94E3 /* Copyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8AC1BDC6A4500167F45 /* Copyable.swift */; };
-		F632C9871BE44F6F008D94E3 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A61BDC4EC300167F45 /* Server.swift */; };
+		F632C9871BE44F6F008D94E3 /* ControllerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */; };
 		F632C9881BE44F6F008D94E3 /* ClosureTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8F51BDEE50A00167F45 /* ClosureTimer.swift */; };
 		F632C9891BE44F6F008D94E3 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B61BDDA1FE00167F45 /* Client.swift */; };
 		F632C98A1BE44F6F008D94E3 /* ControllerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = F65EA8881BDC388B00167F45 /* ControllerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -29,13 +29,16 @@
 		F632C9A31BE51945008D94E3 /* Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F632C9A21BE51945008D94E3 /* Connection.swift */; };
 		F632C9A41BE51945008D94E3 /* Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F632C9A21BE51945008D94E3 /* Connection.swift */; };
 		F632C9A51BE51945008D94E3 /* Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F632C9A21BE51945008D94E3 /* Connection.swift */; };
+		F6345F761C06696300C2ACE3 /* Gamepad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6345F751C06696300C2ACE3 /* Gamepad.swift */; };
+		F6345F771C06696300C2ACE3 /* Gamepad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6345F751C06696300C2ACE3 /* Gamepad.swift */; };
+		F6345F781C06696300C2ACE3 /* Gamepad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6345F751C06696300C2ACE3 /* Gamepad.swift */; };
 		F65EA8891BDC388B00167F45 /* ControllerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = F65EA8881BDC388B00167F45 /* ControllerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F65EA8901BDC388B00167F45 /* ControllerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA8851BDC388B00167F45 /* ControllerKit.framework */; };
 		F65EA8951BDC388B00167F45 /* ControllerKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8941BDC388B00167F45 /* ControllerKitTests.swift */; };
 		F65EA8A01BDC44C900167F45 /* Act.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA89F1BDC44C900167F45 /* Act.framework */; };
 		F65EA8A31BDC493500167F45 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A21BDC493500167F45 /* Controller.swift */; };
 		F65EA8A51BDC49B700167F45 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA8A41BDC49B700167F45 /* GameController.framework */; };
-		F65EA8A71BDC4EC400167F45 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A61BDC4EC300167F45 /* Server.swift */; };
+		F65EA8A71BDC4EC400167F45 /* ControllerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */; };
 		F65EA8AB1BDC68AA00167F45 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8AA1BDC68AA00167F45 /* Observable.swift */; };
 		F65EA8AD1BDC6A4500167F45 /* Copyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8AC1BDC6A4500167F45 /* Copyable.swift */; };
 		F65EA8B11BDD96DC00167F45 /* ControllerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */; };
@@ -59,7 +62,7 @@
 		F65EA9501BDEFCBE00167F45 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A21BDC493500167F45 /* Controller.swift */; };
 		F65EA9511BDEFCBE00167F45 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8AA1BDC68AA00167F45 /* Observable.swift */; };
 		F65EA9521BDEFCBE00167F45 /* Copyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8AC1BDC6A4500167F45 /* Copyable.swift */; };
-		F65EA9531BDEFCBE00167F45 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A61BDC4EC300167F45 /* Server.swift */; };
+		F65EA9531BDEFCBE00167F45 /* ControllerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */; };
 		F65EA9541BDEFCBE00167F45 /* ClosureTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8F51BDEE50A00167F45 /* ClosureTimer.swift */; };
 		F65EA9551BDEFCBE00167F45 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B61BDDA1FE00167F45 /* Client.swift */; };
 		F65EA9561BDEFCBE00167F45 /* ControllerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = F65EA8881BDC388B00167F45 /* ControllerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -91,6 +94,7 @@
 /* Begin PBXFileReference section */
 		F632C9781BE44F2F008D94E3 /* ControllerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ControllerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F632C9A21BE51945008D94E3 /* Connection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Connection.swift; sourceTree = "<group>"; };
+		F6345F751C06696300C2ACE3 /* Gamepad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Gamepad.swift; sourceTree = "<group>"; };
 		F65EA8851BDC388B00167F45 /* ControllerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ControllerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65EA8881BDC388B00167F45 /* ControllerKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControllerKit.h; sourceTree = "<group>"; };
 		F65EA88A1BDC388B00167F45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -100,7 +104,7 @@
 		F65EA89F1BDC44C900167F45 /* Act.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Act.framework; path = Carthage/Build/iOS/Act.framework; sourceTree = "<group>"; };
 		F65EA8A21BDC493500167F45 /* Controller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		F65EA8A41BDC49B700167F45 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
-		F65EA8A61BDC4EC300167F45 /* Server.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
+		F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerBrowser.swift; sourceTree = "<group>"; };
 		F65EA8AA1BDC68AA00167F45 /* Observable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		F65EA8AC1BDC6A4500167F45 /* Copyable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Copyable.swift; sourceTree = "<group>"; };
 		F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerInput.swift; sourceTree = "<group>"; };
@@ -190,15 +194,16 @@
 		F65EA8871BDC388B00167F45 /* ControllerKit */ = {
 			isa = PBXGroup;
 			children = (
+				F65EA8A21BDC493500167F45 /* Controller.swift */,
+				F6345F751C06696300C2ACE3 /* Gamepad.swift */,
 				F632C9A21BE51945008D94E3 /* Connection.swift */,
 				F6CA35E91BE3B66600A08132 /* HIDInput.swift */,
 				F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */,
 				F65EA8B21BDD976600167F45 /* RemoteInput.swift */,
 				F65EA8B41BDD9AF300167F45 /* GCControllerInput.swift */,
-				F65EA8A21BDC493500167F45 /* Controller.swift */,
 				F65EA8AA1BDC68AA00167F45 /* Observable.swift */,
 				F65EA8AC1BDC6A4500167F45 /* Copyable.swift */,
-				F65EA8A61BDC4EC300167F45 /* Server.swift */,
+				F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */,
 				F65EA8F51BDEE50A00167F45 /* ClosureTimer.swift */,
 				F65EA8B61BDDA1FE00167F45 /* Client.swift */,
 				F65EA8881BDC388B00167F45 /* ControllerKit.h */,
@@ -478,10 +483,11 @@
 				F632C9821BE44F6F008D94E3 /* RemoteInput.swift in Sources */,
 				F632C9811BE44F6F008D94E3 /* ControllerInput.swift in Sources */,
 				F632C98E1BE44F81008D94E3 /* GCDAsyncUdpSocket.m in Sources */,
+				F6345F781C06696300C2ACE3 /* Gamepad.swift in Sources */,
 				F632C9861BE44F6F008D94E3 /* Copyable.swift in Sources */,
 				F632C9851BE44F6F008D94E3 /* Observable.swift in Sources */,
 				F632C9881BE44F6F008D94E3 /* ClosureTimer.swift in Sources */,
-				F632C9871BE44F6F008D94E3 /* Server.swift in Sources */,
+				F632C9871BE44F6F008D94E3 /* ControllerBrowser.swift in Sources */,
 				F632C9891BE44F6F008D94E3 /* Client.swift in Sources */,
 				F632C98C1BE44F81008D94E3 /* GCDAsyncSocket.m in Sources */,
 				F632C9801BE44F6F008D94E3 /* HIDInput.swift in Sources */,
@@ -500,10 +506,11 @@
 				F65EA8AD1BDC6A4500167F45 /* Copyable.swift in Sources */,
 				F65EA8A31BDC493500167F45 /* Controller.swift in Sources */,
 				F65EA8EC1BDED6DB00167F45 /* GCDAsyncUdpSocket.m in Sources */,
+				F6345F761C06696300C2ACE3 /* Gamepad.swift in Sources */,
 				F65EA8AB1BDC68AA00167F45 /* Observable.swift in Sources */,
 				F65EA8B51BDD9AF300167F45 /* GCControllerInput.swift in Sources */,
 				F65EA8B11BDD96DC00167F45 /* ControllerInput.swift in Sources */,
-				F65EA8A71BDC4EC400167F45 /* Server.swift in Sources */,
+				F65EA8A71BDC4EC400167F45 /* ControllerBrowser.swift in Sources */,
 				F65EA8B71BDDA1FE00167F45 /* Client.swift in Sources */,
 				F65EA8F61BDEE50A00167F45 /* ClosureTimer.swift in Sources */,
 				F6CA35EA1BE3B66600A08132 /* HIDInput.swift in Sources */,
@@ -524,12 +531,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				F632C9A41BE51945008D94E3 /* Connection.swift in Sources */,
-				F65EA9531BDEFCBE00167F45 /* Server.swift in Sources */,
+				F65EA9531BDEFCBE00167F45 /* ControllerBrowser.swift in Sources */,
 				F65EA95A1BDEFCCD00167F45 /* GCDAsyncUdpSocket.m in Sources */,
 				F65EA94F1BDEFCBE00167F45 /* GCControllerInput.swift in Sources */,
 				F65EA95C1BDEFCCD00167F45 /* AsyncSocket.m in Sources */,
 				F65EA9511BDEFCBE00167F45 /* Observable.swift in Sources */,
 				F65EA9541BDEFCBE00167F45 /* ClosureTimer.swift in Sources */,
+				F6345F771C06696300C2ACE3 /* Gamepad.swift in Sources */,
 				F65EA94E1BDEFCBE00167F45 /* RemoteInput.swift in Sources */,
 				F65EA94D1BDEFCBE00167F45 /* ControllerInput.swift in Sources */,
 				F65EA9581BDEFCCD00167F45 /* GCDAsyncSocket.m in Sources */,
@@ -702,7 +710,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = ControllerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.goos.ControllerKit;
 				PRODUCT_NAME = ControllerKit;
@@ -727,7 +735,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = ControllerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.goos.ControllerKit;
 				PRODUCT_NAME = ControllerKit;
