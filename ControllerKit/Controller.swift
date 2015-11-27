@@ -10,7 +10,7 @@ import Foundation
 import GameController
 import Act
 
-public enum ConnectionStatus : Int {
+@objc public enum ConnectionStatus : Int {
     case Disconnected
     case Connecting
     case Connected

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol ClientDelegate : class {
+@objc public protocol ClientDelegate : class {
     func client(client: Client, discoveredService service: NSNetService)
     func client(client: Client, lostService service: NSNetService)
     

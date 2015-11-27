@@ -10,13 +10,13 @@ import Foundation
 import GameController
 import Act
 
-public protocol ControllerBrowserDelegate : class {
+@objc public protocol ControllerBrowserDelegate : class {
     func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller, type: ControllerType)
     func controllerBrowser(browser: ControllerBrowser, controllerDisconnected controller: Controller)
     func controllerBrowser(browser: ControllerBrowser, encounteredError error: NSError)
 }
 
-public enum ControllerType : Int {
+@objc public enum ControllerType : Int {
     case MFi
     case HID
     case Remote
