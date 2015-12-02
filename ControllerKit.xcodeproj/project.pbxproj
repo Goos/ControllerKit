@@ -32,6 +32,15 @@
 		F6345F761C06696300C2ACE3 /* Gamepad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6345F751C06696300C2ACE3 /* Gamepad.swift */; };
 		F6345F771C06696300C2ACE3 /* Gamepad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6345F751C06696300C2ACE3 /* Gamepad.swift */; };
 		F6345F781C06696300C2ACE3 /* Gamepad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6345F751C06696300C2ACE3 /* Gamepad.swift */; };
+		F63C65151C0CFD29000A624A /* UDPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C65141C0CFD29000A624A /* UDPConnection.swift */; };
+		F63C65161C0CFD29000A624A /* UDPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C65141C0CFD29000A624A /* UDPConnection.swift */; };
+		F63C65171C0CFD29000A624A /* UDPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C65141C0CFD29000A624A /* UDPConnection.swift */; };
+		F63C65191C0CFD91000A624A /* TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C65181C0CFD91000A624A /* TCPConnection.swift */; };
+		F63C651A1C0CFD91000A624A /* TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C65181C0CFD91000A624A /* TCPConnection.swift */; };
+		F63C651B1C0CFD91000A624A /* TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C65181C0CFD91000A624A /* TCPConnection.swift */; };
+		F63C651F1C0D0B29000A624A /* Marshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C651E1C0D0B29000A624A /* Marshalling.swift */; };
+		F63C65201C0D0B29000A624A /* Marshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C651E1C0D0B29000A624A /* Marshalling.swift */; };
+		F63C65211C0D0B29000A624A /* Marshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C651E1C0D0B29000A624A /* Marshalling.swift */; };
 		F65EA8891BDC388B00167F45 /* ControllerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = F65EA8881BDC388B00167F45 /* ControllerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F65EA8901BDC388B00167F45 /* ControllerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA8851BDC388B00167F45 /* ControllerKit.framework */; };
 		F65EA8951BDC388B00167F45 /* ControllerKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8941BDC388B00167F45 /* ControllerKitTests.swift */; };
@@ -93,8 +102,11 @@
 
 /* Begin PBXFileReference section */
 		F632C9781BE44F2F008D94E3 /* ControllerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ControllerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F632C9A21BE51945008D94E3 /* Connection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Connection.swift; sourceTree = "<group>"; };
-		F6345F751C06696300C2ACE3 /* Gamepad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Gamepad.swift; sourceTree = "<group>"; };
+		F632C9A21BE51945008D94E3 /* Connection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Connection.swift; path = Networking/Connection.swift; sourceTree = "<group>"; };
+		F6345F751C06696300C2ACE3 /* Gamepad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Gamepad.swift; path = Input/Gamepad.swift; sourceTree = "<group>"; };
+		F63C65141C0CFD29000A624A /* UDPConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UDPConnection.swift; path = Networking/UDPConnection.swift; sourceTree = "<group>"; };
+		F63C65181C0CFD91000A624A /* TCPConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TCPConnection.swift; path = Networking/TCPConnection.swift; sourceTree = "<group>"; };
+		F63C651E1C0D0B29000A624A /* Marshalling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Marshalling.swift; path = Networking/Marshalling.swift; sourceTree = "<group>"; };
 		F65EA8851BDC388B00167F45 /* ControllerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ControllerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65EA8881BDC388B00167F45 /* ControllerKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControllerKit.h; sourceTree = "<group>"; };
 		F65EA88A1BDC388B00167F45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -107,9 +119,9 @@
 		F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerBrowser.swift; sourceTree = "<group>"; };
 		F65EA8AA1BDC68AA00167F45 /* Observable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		F65EA8AC1BDC6A4500167F45 /* Copyable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Copyable.swift; sourceTree = "<group>"; };
-		F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerInput.swift; sourceTree = "<group>"; };
-		F65EA8B21BDD976600167F45 /* RemoteInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteInput.swift; sourceTree = "<group>"; };
-		F65EA8B41BDD9AF300167F45 /* GCControllerInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GCControllerInput.swift; sourceTree = "<group>"; };
+		F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ControllerInput.swift; path = Input/ControllerInput.swift; sourceTree = "<group>"; };
+		F65EA8B21BDD976600167F45 /* RemoteInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RemoteInput.swift; path = Networking/RemoteInput.swift; sourceTree = "<group>"; };
+		F65EA8B41BDD9AF300167F45 /* GCControllerInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GCControllerInput.swift; path = Input/GCControllerInput.swift; sourceTree = "<group>"; };
 		F65EA8B61BDDA1FE00167F45 /* Client.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		F65EA8E51BDED6DB00167F45 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = CocoaAsyncSocket/Source/GCD/GCDAsyncSocket.h; sourceTree = "<group>"; };
 		F65EA8E61BDED6DB00167F45 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = CocoaAsyncSocket/Source/GCD/GCDAsyncSocket.m; sourceTree = "<group>"; };
@@ -126,7 +138,7 @@
 		F695B6E71BE8DD670014C34C /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.0.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
 		F6A6E8A91BEA832800BC9809 /* Act.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Act.framework; path = Carthage/Build/tvOS/Act.framework; sourceTree = "<group>"; };
 		F6CA35E71BE3AF7400A08132 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/IOKit.framework; sourceTree = DEVELOPER_DIR; };
-		F6CA35E91BE3B66600A08132 /* HIDInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HIDInput.swift; sourceTree = "<group>"; };
+		F6CA35E91BE3B66600A08132 /* HIDInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HIDInput.swift; path = Input/HIDInput.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,6 +181,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F63C651C1C0CFDAE000A624A /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				F63C651E1C0D0B29000A624A /* Marshalling.swift */,
+				F65EA8B21BDD976600167F45 /* RemoteInput.swift */,
+				F632C9A21BE51945008D94E3 /* Connection.swift */,
+				F63C65141C0CFD29000A624A /* UDPConnection.swift */,
+				F63C65181C0CFD91000A624A /* TCPConnection.swift */,
+			);
+			name = Networking;
+			sourceTree = "<group>";
+		};
+		F63C651D1C0D0983000A624A /* Input */ = {
+			isa = PBXGroup;
+			children = (
+				F6345F751C06696300C2ACE3 /* Gamepad.swift */,
+				F6CA35E91BE3B66600A08132 /* HIDInput.swift */,
+				F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */,
+				F65EA8B41BDD9AF300167F45 /* GCControllerInput.swift */,
+			);
+			name = Input;
+			sourceTree = "<group>";
+		};
 		F65EA87B1BDC388B00167F45 = {
 			isa = PBXGroup;
 			children = (
@@ -194,18 +229,14 @@
 		F65EA8871BDC388B00167F45 /* ControllerKit */ = {
 			isa = PBXGroup;
 			children = (
-				F65EA8A21BDC493500167F45 /* Controller.swift */,
-				F6345F751C06696300C2ACE3 /* Gamepad.swift */,
-				F632C9A21BE51945008D94E3 /* Connection.swift */,
-				F6CA35E91BE3B66600A08132 /* HIDInput.swift */,
-				F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */,
-				F65EA8B21BDD976600167F45 /* RemoteInput.swift */,
-				F65EA8B41BDD9AF300167F45 /* GCControllerInput.swift */,
+				F63C651D1C0D0983000A624A /* Input */,
+				F63C651C1C0CFDAE000A624A /* Networking */,
 				F65EA8AA1BDC68AA00167F45 /* Observable.swift */,
 				F65EA8AC1BDC6A4500167F45 /* Copyable.swift */,
+				F65EA8A21BDC493500167F45 /* Controller.swift */,
 				F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */,
-				F65EA8F51BDEE50A00167F45 /* ClosureTimer.swift */,
 				F65EA8B61BDDA1FE00167F45 /* Client.swift */,
+				F65EA8F51BDEE50A00167F45 /* ClosureTimer.swift */,
 				F65EA8881BDC388B00167F45 /* ControllerKit.h */,
 				F65EA88A1BDC388B00167F45 /* Info.plist */,
 			);
@@ -477,6 +508,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F632C9841BE44F6F008D94E3 /* Controller.swift in Sources */,
+				F63C65211C0D0B29000A624A /* Marshalling.swift in Sources */,
 				F632C9A51BE51945008D94E3 /* Connection.swift in Sources */,
 				F632C9901BE44F81008D94E3 /* AsyncSocket.m in Sources */,
 				F632C9831BE44F6F008D94E3 /* GCControllerInput.swift in Sources */,
@@ -490,6 +522,8 @@
 				F632C9871BE44F6F008D94E3 /* ControllerBrowser.swift in Sources */,
 				F632C9891BE44F6F008D94E3 /* Client.swift in Sources */,
 				F632C98C1BE44F81008D94E3 /* GCDAsyncSocket.m in Sources */,
+				F63C65171C0CFD29000A624A /* UDPConnection.swift in Sources */,
+				F63C651B1C0CFD91000A624A /* TCPConnection.swift in Sources */,
 				F632C9801BE44F6F008D94E3 /* HIDInput.swift in Sources */,
 				F632C9921BE44F81008D94E3 /* AsyncUdpSocket.m in Sources */,
 			);
@@ -500,6 +534,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F65EA8EA1BDED6DB00167F45 /* GCDAsyncSocket.m in Sources */,
+				F63C651F1C0D0B29000A624A /* Marshalling.swift in Sources */,
 				F632C9A31BE51945008D94E3 /* Connection.swift in Sources */,
 				F65EA8F41BDED6E700167F45 /* AsyncUdpSocket.m in Sources */,
 				F65EA8F21BDED6E700167F45 /* AsyncSocket.m in Sources */,
@@ -513,6 +548,8 @@
 				F65EA8A71BDC4EC400167F45 /* ControllerBrowser.swift in Sources */,
 				F65EA8B71BDDA1FE00167F45 /* Client.swift in Sources */,
 				F65EA8F61BDEE50A00167F45 /* ClosureTimer.swift in Sources */,
+				F63C65151C0CFD29000A624A /* UDPConnection.swift in Sources */,
+				F63C65191C0CFD91000A624A /* TCPConnection.swift in Sources */,
 				F6CA35EA1BE3B66600A08132 /* HIDInput.swift in Sources */,
 				F65EA8B31BDD976600167F45 /* RemoteInput.swift in Sources */,
 			);
@@ -531,6 +568,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F632C9A41BE51945008D94E3 /* Connection.swift in Sources */,
+				F63C65201C0D0B29000A624A /* Marshalling.swift in Sources */,
 				F65EA9531BDEFCBE00167F45 /* ControllerBrowser.swift in Sources */,
 				F65EA95A1BDEFCCD00167F45 /* GCDAsyncUdpSocket.m in Sources */,
 				F65EA94F1BDEFCBE00167F45 /* GCControllerInput.swift in Sources */,
@@ -544,6 +582,8 @@
 				F65EA9521BDEFCBE00167F45 /* Copyable.swift in Sources */,
 				F65EA9501BDEFCBE00167F45 /* Controller.swift in Sources */,
 				F6CA35EB1BE3B66600A08132 /* HIDInput.swift in Sources */,
+				F63C65161C0CFD29000A624A /* UDPConnection.swift in Sources */,
+				F63C651A1C0CFD91000A624A /* TCPConnection.swift in Sources */,
 				F65EA9551BDEFCBE00167F45 /* Client.swift in Sources */,
 				F65EA95E1BDEFCCD00167F45 /* AsyncUdpSocket.m in Sources */,
 			);

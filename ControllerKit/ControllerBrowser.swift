@@ -24,22 +24,22 @@ import Act
 
 final class RemotePeer {
     var controllers: [UInt16:Controller] = [:]
-    let connectChannel: ReadChannel<ControllerConnectedMessage>
-    let nameChannel: ReadChannel<RemoteMessage<ControllerNameMessage>>
-    let gamepadChannel: ReadChannel<RemoteMessage<GamepadMessage>>
+    let connectChannel: TCPReadChannel<ControllerConnectedMessage>
+    let nameChannel: TCPReadChannel<RemoteMessage<ControllerNameMessage>>
+    let gamepadChannel: UDPReadChannel<RemoteMessage<GamepadMessage>>
     
-    init(connectChannel: ReadChannel<ControllerConnectedMessage>, nameChannel: ReadChannel<RemoteMessage<ControllerNameMessage>>, gamepadChannel: ReadChannel<RemoteMessage<GamepadMessage>>) {
+    init(connectChannel: TCPReadChannel<ControllerConnectedMessage>, nameChannel: TCPReadChannel<RemoteMessage<ControllerNameMessage>>, gamepadChannel: UDPReadChannel<RemoteMessage<GamepadMessage>>) {
         self.connectChannel = connectChannel
         self.nameChannel = nameChannel
         self.gamepadChannel = gamepadChannel
         
-        nameChannel.receive { message in
+        nameChannel.onReceive = { message in
             if let controller = self.controllers[message.controllerIndex] {
                 controller.name = message.message.name
             }
         }
         
-        gamepadChannel.receive { message in
+        gamepadChannel.onReceive = { message in
             if let controller = self.controllers[message.controllerIndex] {
                 controller.inputHandler.send(message.message)
             }
@@ -48,7 +48,6 @@ final class RemotePeer {
 }
 
 let kLocalDomain = "local."
-let kControllerConnectedMessageLength: UInt = 10
 
 /*! 
     @class Server
@@ -236,7 +235,6 @@ public final class ControllerBrowser : NSObject, HIDManagerDelegate, NSNetServic
     // MARK: GCDAsyncSocketDelegate
     public func socket(sock: GCDAsyncSocket!, didAcceptNewSocket newSocket: GCDAsyncSocket!) {
         let tcpConnection = TCPConnection(socket: newSocket, delegateQueue: inputQueue)
-        tcpConnection.send(ControllerNameMessage(name: "asdy").marshal())
         connections.insert(tcpConnection)
         
         let host = newSocket.connectedHost
@@ -259,8 +257,6 @@ public final class ControllerBrowser : NSObject, HIDManagerDelegate, NSNetServic
                     
                     self.delegate?.controllerBrowser(self, controllerConnected: controller, type: .Remote)
                 }
-                tcpConnection.socket.readDataToLength(kControllerConnectedMessageLength, withTimeout: -1, tag: 0)
-                
             }
             remotePeers[host] = peer
         } else {
@@ -291,8 +287,6 @@ public final class ControllerBrowser : NSObject, HIDManagerDelegate, NSNetServic
         tcpConnection.onError = { err in
             self.delegate?.controllerBrowser(self, encounteredError: err)
         }
-        
-        tcpConnection.socket.readDataToLength(kControllerConnectedMessageLength, withTimeout: -1, tag: 0)
     }
     
     public func newSocketQueueForConnectionFromAddress(address: NSData!, onSocket sock: GCDAsyncSocket!) -> dispatch_queue_t! {

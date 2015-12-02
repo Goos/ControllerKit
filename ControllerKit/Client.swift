@@ -39,9 +39,9 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     let tcpConnection: TCPConnection
     let inputConnection: UDPConnection
     
-    var connectChannel: WriteChannel<ControllerConnectedMessage>?
-    let nameChannel: WriteChannel<RemoteMessage<ControllerNameMessage>>
-    var gamepadChannel: WriteChannel<RemoteMessage<GamepadMessage>>?
+    var connectChannel: TCPWriteChannel<ControllerConnectedMessage>?
+    let nameChannel: TCPWriteChannel<RemoteMessage<ControllerNameMessage>>
+    var gamepadChannel: UDPWriteChannel<RemoteMessage<GamepadMessage>>?
     
     let networkQueue = dispatch_queue_create("com.controllerkit.network", DISPATCH_QUEUE_SERIAL)
     let delegateQueue = dispatch_queue_create("com.controllerkit.delegate", DISPATCH_QUEUE_SERIAL)
@@ -82,10 +82,8 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
             }
             
             if currentService != nil {
-                for (index, controller) in controllers {
-                    let message = ControllerConnectedMessage(index: index, layout: controller.layout, name: controller.name)
-                    connectChannel?.send(message)
-                }
+                let message = ControllerConnectedMessage(index: controller.index, layout: controller.layout, name: controller.name)
+                connectChannel?.send(message)
             }
         }
     }

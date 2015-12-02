@@ -41,30 +41,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
         
-        browser = ControllerBrowser(name: "TestServer", controllerTypes: [.HID])
+        browser = ControllerBrowser(name: "TestServer", controllerTypes: [.Remote])
         browser.delegate = self
         browser.start()
         
-        client = Client(name: "Macbook", controllers: [])
-        client.delegate = self
-        client.start()
+//        client = Client(name: "Macbook", controllers: [])
+//        client.delegate = self
+//        client.start()
     }
     
     func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller, type: ControllerType) {
         print("found controller: \(controller)")
-        client.addController(controller)
+//        client.addController(controller)
         
-//        controller.leftThumbstick.valueChangedHandler = { (xAxis, yAxis) in
-//            self.leftStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
-//        }
-//        
-//        controller.rightThumbstick.valueChangedHandler = { (xAxis, yAxis) in
-//            self.rightStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
-//        }
-//        
-//        controller.dpad.valueChangedHandler = { (xAxis, yAxis) in
-//            self.dpadView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
-//        }
+        controller.leftThumbstick.valueChangedHandler = { (xAxis, yAxis) in
+            self.leftStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
+        }
+        
+        controller.rightThumbstick.valueChangedHandler = { (xAxis, yAxis) in
+            self.rightStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
+        }
+        
+        controller.dpad.valueChangedHandler = { (xAxis, yAxis) in
+            self.dpadView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
+        }
         
     }
     

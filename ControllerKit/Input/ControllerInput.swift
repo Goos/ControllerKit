@@ -9,15 +9,6 @@
 import Foundation
 import Act
 
-public struct GamepadLayoutMessage : Message {
-    public let type = "GamepadLayoutMessage"
-    public let layout: GamepadLayout
-    
-    public init(layout: GamepadLayout) {
-        self.layout = layout
-    }
-}
-
 public struct ControllerNameMessage : Message {
     public let type = "ControllerNameMessage"
     public let name: String?

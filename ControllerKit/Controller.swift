@@ -18,12 +18,6 @@ import Act
 
 public func GamepadStateReducer(state: GamepadState, message: Message) -> GamepadState {
     switch(message) {
-    case let m as GamepadLayoutMessage:
-        if m.layout == state.layout {
-            return state
-        } else {
-            return GamepadState(layout: m.layout)
-        }
     case let m as ButtonMessage:
         var s = state
         switch(m.button) {
