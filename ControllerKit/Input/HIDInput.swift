@@ -18,7 +18,6 @@ protocol HIDManagerDelegate : class {
 }
 
 #if os(OSX)
-import IOKit
 import IOKit.hid
 
 enum HIDVendor : Int {
@@ -150,13 +149,13 @@ final class HIDControllerManager {
                 IOHIDDeviceCalibrateAxisElement(element, calibration: (-1.0, 1.0), saturation: (axisMin, axisMax), deadZonePercent: kHIDAxisDeadZone)
             }
             if let element = IOHIDDeviceGetAxisElement(device, elementID: Int(transf.leftThumbstickIDs.y)) {
-                IOHIDDeviceCalibrateAxisElement(element, calibration: (-1.0, 1.0), saturation: (axisMin, axisMax), deadZonePercent: kHIDAxisDeadZone)
+                IOHIDDeviceCalibrateAxisElement(element, calibration: (1.0, -1.0), saturation: (axisMin, axisMax), deadZonePercent: kHIDAxisDeadZone)
             }
             if let element = IOHIDDeviceGetAxisElement(device, elementID: Int(transf.rightThumbstickIDs.x)) {
                 IOHIDDeviceCalibrateAxisElement(element, calibration: (-1.0, 1.0), saturation: (axisMin, axisMax), deadZonePercent: kHIDAxisDeadZone)
             }
             if let element = IOHIDDeviceGetAxisElement(device, elementID: Int(transf.rightThumbstickIDs.y)) {
-                IOHIDDeviceCalibrateAxisElement(element, calibration: (-1.0, 1.0), saturation: (axisMin, axisMax), deadZonePercent: kHIDAxisDeadZone)
+                IOHIDDeviceCalibrateAxisElement(element, calibration: (1.0, -1.0), saturation: (axisMin, axisMax), deadZonePercent: kHIDAxisDeadZone)
             }
             
             if let element = IOHIDDeviceGetAxisElement(device, elementID: Int(transf.leftTriggerID)) {
@@ -179,7 +178,6 @@ final class HIDControllerManager {
             controllers[deviceId] = controller
             self.delegate?.manager(self, controllerConnected: controller)
         }
-        
     }
     
     func deviceDisconnected(device: IOHIDDevice) {
@@ -276,9 +274,9 @@ struct HIDInputTransformer {
             case buttonYID: button = .Y
             case leftShoulderID: button = .LS
             case rightShoulderID: button = .RS
-            case dpadIDs.up: yAxis = -Float(state)
+            case dpadIDs.up: yAxis = Float(state)
             case dpadIDs.right: xAxis = Float(state)
-            case dpadIDs.down: yAxis = Float(state)
+            case dpadIDs.down: yAxis = -Float(state)
             case dpadIDs.left: xAxis = -Float(state)
             default: break
             }
@@ -332,7 +330,7 @@ struct HIDInputTransformer {
                 let joystickState = JoystickState(xAxis: axes.x, yAxis: axes.y)
                 next(JoystickMessage(joystick: joystick!, state: joystickState))
             } else if button != nil {
-                next(ButtonMessage(button: button!, value: Float(state)))
+                next(ButtonMessage(button: button!, value: analog))
             }
         default: break
         }

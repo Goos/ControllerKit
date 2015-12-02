@@ -82,7 +82,7 @@ public final class ControllerBrowser : NSObject, HIDManagerDelegate, NSNetServic
     private let queueable: DispatchQueueable
     
     public convenience init(name: String) {
-        self.init(name: name, controllerTypes: [.Remote])
+        self.init(name: name, controllerTypes: [.Remote, .HID, .MFi])
     }
     
     public init(name: String, serviceIdentifier: String = "controllerkit", controllerTypes: Set<ControllerType>) {

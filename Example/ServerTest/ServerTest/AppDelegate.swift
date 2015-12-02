@@ -41,7 +41,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
         
-        browser = ControllerBrowser(name: "TestServer", controllerTypes: [.Remote])
+        browser = ControllerBrowser(name: "TestServer")
         browser.delegate = self
         browser.start()
         
@@ -70,7 +70,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
     
     func controllerBrowser(browser: ControllerBrowser, controllerDisconnected controller: Controller) {
         print("Disconnected controller: \(controller)")
-        client.removeController(controller)
+//        client.removeController(controller)
     }
     
     func controllerBrowser(browser: ControllerBrowser, encounteredError error: NSError) {

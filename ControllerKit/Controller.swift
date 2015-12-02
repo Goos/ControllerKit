@@ -82,11 +82,28 @@ public final class JoystickInput : NSObject {
 }
 
 public final class Controller : NSObject {
-    public internal(set) var index: UInt16 = 0
-    public internal(set) var name: String?
-    public internal(set) var status: ConnectionStatus = .Connected
     internal let inputHandler: ObservableActor<GamepadState>
     private var unobserve: (() -> ())? = nil
+    
+    public internal(set) var index: UInt16 = 0
+    
+    public internal(set) var name: String? {
+        didSet {
+            if oldValue != name {
+                nameChangedHandler?(name)
+            }
+        }
+    }
+    public var nameChangedHandler: ((String?) -> ())?
+    
+    public internal(set) var status: ConnectionStatus = .Connected {
+        didSet {
+            if oldValue != status {
+                statusChangedHandler?(status)
+            }
+        }
+    }
+    public var statusChangedHandler: ((ConnectionStatus) -> ())?
     
     public var layout: GamepadLayout = .Regular
     
@@ -127,22 +144,6 @@ public final class Controller : NSObject {
     deinit {
         unobserve?()
     }
-    
-//    public init(nativeController: GCController, queue: Queueable = dispatch_get_main_queue().queueable()) {
-//        var type: GamepadLayout
-//        if nativeController.extendedGamepad != nil {
-//            type = .Extended
-//        } else if nativeController.gamepad != nil {
-//            type = .Regular
-//        } else {
-//            type = .Micro
-//        }
-//        
-//        throttler = ThrottlingTransformer(interval: 1.0 / 60.0)
-//        
-//        inputHandler = Actor(initialState: GamepadState(type: type), transformers: [throttler!.receive], reducer: GamepadStateReducer, processingQueue: queue)
-//        pipe(nativeController, inputHandler)
-//    }
 }
 
 public func ControllerInputHandler(initialState: GamepadState = GamepadState(layout: .Regular), processingQueue: Queueable? = nil) -> ObservableActor<GamepadState> {
