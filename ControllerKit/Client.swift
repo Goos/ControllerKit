@@ -39,7 +39,8 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     let tcpConnection: TCPConnection
     let inputConnection: UDPConnection
     
-    var connectChannel: TCPWriteChannel<ControllerConnectedMessage>?
+    let connectChannel: TCPWriteChannel<ControllerConnectedMessage>
+    let disconnectChannel: TCPWriteChannel<ControllerDisconnectedMessage>
     let nameChannel: TCPWriteChannel<RemoteMessage<ControllerNameMessage>>
     var gamepadChannel: UDPWriteChannel<RemoteMessage<GamepadMessage>>?
     
@@ -58,7 +59,8 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
         inputConnection = UDPConnection(socketQueue: networkQueue, delegateQueue: delegateQueue)
         
         connectChannel = tcpConnection.registerWriteChannel(1, type: ControllerConnectedMessage.self)
-        nameChannel = tcpConnection.registerWriteChannel(2, type: RemoteMessage<ControllerNameMessage>.self)
+        disconnectChannel = tcpConnection.registerWriteChannel(2, type: ControllerDisconnectedMessage.self)
+        nameChannel = tcpConnection.registerWriteChannel(3, type: RemoteMessage<ControllerNameMessage>.self)
         
         super.init()
         
@@ -83,7 +85,7 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
             
             if currentService != nil {
                 let message = ControllerConnectedMessage(index: controller.index, layout: controller.layout, name: controller.name)
-                connectChannel?.send(message)
+                connectChannel.send(message)
             }
         }
     }
@@ -92,6 +94,11 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
         observerBlocks[controller.index]?()
         controllers.removeValueForKey(controller.index)
         observerBlocks.removeValueForKey(controller.index)
+        
+        if currentService != nil {
+            let message = ControllerDisconnectedMessage(index: controller.index)
+            disconnectChannel.send(message)
+        }
     }
     
     public func start() {
@@ -143,10 +150,10 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
             }
             let host = client.tcpConnection.socket.connectedHost
             let port = UInt16(txtRecord.inputPort)
-            self?.gamepadChannel = client.inputConnection.registerWriteChannel(3, host: host, port: port, type: RemoteMessage<GamepadMessage>.self)
+            self?.gamepadChannel = client.inputConnection.registerWriteChannel(1, host: host, port: port, type: RemoteMessage<GamepadMessage>.self)
             for (index, controller) in client.controllers {
                 let message = ControllerConnectedMessage(index: index, layout: controller.layout, name: controller.name)
-                client.connectChannel?.send(message)
+                client.connectChannel.send(message)
             }
         }, error: { [weak self] error in
             if let s = self {

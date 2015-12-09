@@ -20,7 +20,6 @@ final class UDPConnection : NSObject, GCDAsyncUdpSocketDelegate {
     
     var onSuccess: (() -> ())?
     var onError: ((NSError) -> ())?
-    var onDisconnect: (() -> ())?
     
     convenience override init() {
         self.init(socketQueue: dispatch_queue_create("com.controllerkit.socket_queue", DISPATCH_QUEUE_CONCURRENT), delegateQueue: dispatch_queue_create("com.controllerkit.delegate_queue", DISPATCH_QUEUE_SERIAL))
@@ -33,44 +32,11 @@ final class UDPConnection : NSObject, GCDAsyncUdpSocketDelegate {
         socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: delegateQueue, socketQueue: socketQueue)
     }
     
-    func connect(host: String, port: UInt16, success: (() -> ())?, error: ((NSError) -> ())?, disconnect: (() -> ())?) {
-        if connected { return }
-        
-        onSuccess = success
-        onError = error
-        onDisconnect = disconnect
-        
-        do {
-            try socket.connectToHost(host, onPort: port)
-        } catch let err as NSError {
-            onError?(err)
-        }
-    }
-    
-    func connect(address: NSData, success: (() -> ())?, error: ((NSError) -> ())?, disconnect: (() -> ())?) {
-        if connected { return }
-        
-        onSuccess = success
-        onError = error
-        onDisconnect = disconnect
-        
-        do {
-            try socket.connectToAddress(address)
-        } catch let err as NSError {
-            onError?(err)
-        }
-    }
-    
-    func disconnect() {
-        socket.close()
-    }
-    
-    func listen(localPort: UInt16, success: (() -> ())? = nil, error: ((NSError) -> ())? = nil, disconnect: (() -> ())? = nil) {
+    func listen(localPort: UInt16, success: (() -> ())? = nil, error: ((NSError) -> ())? = nil) {
         if listening { return }
         
         onSuccess = success
         onError = error
-        onDisconnect = disconnect
         
         do {
             try socket.bindToPort(localPort)
@@ -81,38 +47,29 @@ final class UDPConnection : NSObject, GCDAsyncUdpSocketDelegate {
         } catch {}
     }
     
-    func registerReadChannel<T: Marshallable>(identifier: UInt16, host: String? = nil, type: T.Type) -> UDPReadChannel<T>? {
-        let h = host ?? socket.connectedHost()
-        
-        if h != nil {
-            let key = keyForHost(h!, port: nil, identifier: identifier)
-            let channel = UDPReadChannel<T>(identifier: identifier, host: h!, port: nil)
-            inputChannels[key] = channel
-            return channel
-        } else {
-            return nil
-        }
+    func registerReadChannel<T: Marshallable>(identifier: UInt16, host: String, type: T.Type) -> UDPReadChannel<T> {
+        let key = keyForHost(host, port: nil, identifier: identifier)
+        let channel = UDPReadChannel<T>(identifier: identifier, host: host, port: nil)
+        inputChannels[key] = channel
+        return channel
     }
     
-    func registerWriteChannel<T: Marshallable>(identifier: UInt16, host: String? = nil, port: UInt16? = nil, type: T.Type) -> UDPWriteChannel<T>? {
-        let h = host ?? socket.connectedHost()
-        let p = port ?? socket.connectedPort()
-        
-        if h != nil {
-            let key = keyForHost(h!, port: p, identifier: identifier)
-            let channel = UDPWriteChannel<T>(connection: self, identifier: identifier, host: h!, port: p)
-            outputChannels[key] = channel
-            return channel
-        } else {
-            return nil
-        }
+    func registerWriteChannel<T: Marshallable>(identifier: UInt16, host: String, port: UInt16, type: T.Type) -> UDPWriteChannel<T> {
+        let key = keyForHost(host, port: port, identifier: identifier)
+        let channel = UDPWriteChannel<T>(connection: self, identifier: identifier, host: host, port: port)
+        outputChannels[key] = channel
+        return channel
     }
     
     func registerWriteChannel<T: Marshallable>(identifier: UInt16, address: NSData, type: T.Type) -> UDPWriteChannel<T>? {
         var host: NSString?
         var port = UInt16()
         GCDAsyncSocket.getHost(&host, port: &port, fromAddress: address)
-        return registerWriteChannel(identifier, host: host as? String, port: port, type: type)
+        if let h = host as? String {
+            return registerWriteChannel(identifier, host: h, port: port, type: type)
+        } else {
+            return nil
+        }
     }
     
     func deregisterReadChannel<T: Marshallable>(channel: UDPReadChannel<T>) {
@@ -147,7 +104,7 @@ final class UDPConnection : NSObject, GCDAsyncUdpSocketDelegate {
     }
     
     func udpSocketDidClose(sock: GCDAsyncUdpSocket, withError error: NSError) {
-        onDisconnect?()
+        onError?(error)
     }
     
     func udpSocket(sock: GCDAsyncUdpSocket!, didReceiveData data: NSData!, fromAddress address: NSData!, withFilterContext filterContext: AnyObject!) {

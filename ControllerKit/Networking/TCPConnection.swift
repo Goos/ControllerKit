@@ -76,20 +76,16 @@ final class TCPConnection : NSObject, GCDAsyncSocketDelegate {
         socket.writeData(payload, withTimeout: -1, tag: 0)
     }
     
-    func registerReadChannel<T: Marshallable>(identifier: UInt16, host: String? = nil, type: T.Type) -> TCPReadChannel<T>? {
+    func registerReadChannel<T: Marshallable>(identifier: UInt16, type: T.Type) -> TCPReadChannel<T> {
         let channel = TCPReadChannel<T>(identifier: identifier)
         inputChannels[identifier] = channel
         return channel
     }
     
-    func registerWriteChannel<T: Marshallable>(identifier: UInt16, host: String? = nil, port: UInt16? = nil, type: T.Type) -> TCPWriteChannel<T>? {
+    func registerWriteChannel<T: Marshallable>(identifier: UInt16, type: T.Type) -> TCPWriteChannel<T> {
         let channel = TCPWriteChannel<T>(connection: self, identifier: identifier)
         outputChannels[identifier] = channel
         return channel
-    }
-    
-    func registerWriteChannel<T: Marshallable>(identifier: UInt16, type: T.Type) -> TCPWriteChannel<T> {
-        return registerWriteChannel(identifier, host: nil, port: nil, type: type)!
     }
     
     func deregisterReadChannel<T: Marshallable>(channel: TCPReadChannel<T>) {

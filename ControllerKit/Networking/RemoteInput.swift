@@ -41,24 +41,28 @@ struct ControllerConnectedMessage : Message, Marshallable {
     let type = "ControllerConnectedMessage"
     let index: UInt16
     let layout: GamepadLayout
+    let version: UInt16
     let name: String?
     
     init(index: UInt16, layout: GamepadLayout, name: String? = nil) {
         self.index = index
         self.layout = layout
         self.name = name
+        self.version = UInt16(ControllerKitVersionNumber)
     }
     
     init?(data: NSData) {
         var buffer = ReadBuffer(data: data)
         guard let idx: UInt16 = buffer.read(),
             rawLayout: UInt16 = buffer.read(),
+            version: UInt16 = buffer.read(),
             layout = GamepadLayout(rawValue: rawLayout) else {
             return nil
         }
         
         self.index = idx
         self.layout = layout
+        self.version = version
         self.name = buffer.read()
     }
     
@@ -66,9 +70,34 @@ struct ControllerConnectedMessage : Message, Marshallable {
         var buffer = WriteBuffer()
         buffer << index
         buffer << layout.rawValue
+        buffer << version
         if let n = name {
             buffer << n
         }
+        return buffer.data
+    }
+}
+
+struct ControllerDisconnectedMessage : Message, Marshallable {
+    let type = "ControllerDisconnectedMessage"
+    let index: UInt16
+    
+    init(index: UInt16) {
+        self.index = index
+    }
+    
+    init?(data: NSData) {
+        var buffer = ReadBuffer(data: data)
+        guard let idx: UInt16 = buffer.read() else {
+            return nil
+        }
+        
+        self.index = idx
+    }
+    
+    func marshal() -> NSData {
+        var buffer = WriteBuffer()
+        buffer << index
         return buffer.data
     }
 }

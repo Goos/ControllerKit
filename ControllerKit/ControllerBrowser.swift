@@ -24,23 +24,23 @@ import Act
 
 final class RemotePeer {
     var controllers: [UInt16:Controller] = [:]
-    let connectChannel: TCPReadChannel<ControllerConnectedMessage>
+    let host: String
     let nameChannel: TCPReadChannel<RemoteMessage<ControllerNameMessage>>
     let gamepadChannel: UDPReadChannel<RemoteMessage<GamepadMessage>>
     
-    init(connectChannel: TCPReadChannel<ControllerConnectedMessage>, nameChannel: TCPReadChannel<RemoteMessage<ControllerNameMessage>>, gamepadChannel: UDPReadChannel<RemoteMessage<GamepadMessage>>) {
-        self.connectChannel = connectChannel
+    init(host: String, nameChannel: TCPReadChannel<RemoteMessage<ControllerNameMessage>>, gamepadChannel: UDPReadChannel<RemoteMessage<GamepadMessage>>) {
+        self.host = host
         self.nameChannel = nameChannel
         self.gamepadChannel = gamepadChannel
         
-        nameChannel.onReceive = { message in
-            if let controller = self.controllers[message.controllerIndex] {
+        nameChannel.onReceive = { [weak self] message in
+            if let controller = self?.controllers[message.controllerIndex] {
                 controller.name = message.message.name
             }
         }
         
-        gamepadChannel.onReceive = { message in
-            if let controller = self.controllers[message.controllerIndex] {
+        gamepadChannel.onReceive = { [weak self] message in
+            if let controller = self?.controllers[message.controllerIndex] {
                 controller.inputHandler.send(message.message)
             }
         }
@@ -239,59 +239,110 @@ public final class ControllerBrowser : NSObject, HIDManagerDelegate, NSNetServic
         
         let host = newSocket.connectedHost
         
-        var peer: RemotePeer
-        if let p = remotePeers[host] {
-            peer = p
-        } else if let cc = tcpConnection.registerReadChannel(1, host: host, type: ControllerConnectedMessage.self),
-            nc = tcpConnection.registerReadChannel(2, type: RemoteMessage<ControllerNameMessage>.self),
-            gc = inputConnection.registerReadChannel(3, host: host, type: RemoteMessage<GamepadMessage>.self) {
-            peer = RemotePeer(connectChannel: cc, nameChannel: nc, gamepadChannel: gc)
-            cc.onReceive = { message in
-                if let controller = peer.controllers[message.index] {
-                    controller.status = .Connected
-                } else {
-                    let inputHandler = ControllerInputHandler(GamepadState(layout: .Regular), processingQueue: self.inputQueue.queueable())
-                    let controller = Controller(inputHandler: inputHandler)
-                    controller.index = UInt16(self.controllers.count)
-                    peer.controllers[message.index] = controller
-                    
-                    self.delegate?.controllerBrowser(self, controllerConnected: controller, type: .Remote)
-                }
-            }
-            remotePeers[host] = peer
+        if let peer = remotePeers[host] {
+            self.remotePeerReconnected(peer)
         } else {
-            return
-        }
-        
-        tcpConnection.onDisconnect = {
-            for (_, controller) in peer.controllers {
-                controller.status = .Disconnected
+            let cc = tcpConnection.registerReadChannel(1, type: ControllerConnectedMessage.self)
+            let dc = tcpConnection.registerReadChannel(2, type: ControllerDisconnectedMessage.self)
+            
+            cc.onReceive = { [weak self, unowned tcpConnection] message in
+                if let s = self {
+                    s.receivedControllerConnectedMessage(message, connection: tcpConnection)
+                }
             }
             
-            // Removing the controllers after a timeout.
-            NSTimer.setTimeout(12) {
-                for (index, controller) in peer.controllers {
-                    if controller.status == .Disconnected {
-                        self.delegate?.controllerBrowser(self, controllerDisconnected: controller)
-                        peer.controllers.removeValueForKey(index)
-                    }
-                }
-                
-                if peer.controllers.count == 0 {
-                    self.inputConnection.deregisterReadChannel(peer.gamepadChannel)
-                    self.remotePeers.removeValueForKey(host)
+            dc.onReceive = { [weak self, unowned tcpConnection] message in
+                if let s = self {
+                    s.receivedControllerDisconnectedMessage(message, connection: tcpConnection)
                 }
             }
         }
         
-        tcpConnection.onError = { err in
-            self.delegate?.controllerBrowser(self, encounteredError: err)
+        tcpConnection.onDisconnect = { [weak self] in
+            if let peer = self?.remotePeers[host] {
+                self?.remotePeerDisconnected(peer)
+            }
+        }
+        
+        tcpConnection.onError = { [weak self] err in
+            self?.delegate?.controllerBrowser(self!, encounteredError: err)
         }
     }
     
     public func newSocketQueueForConnectionFromAddress(address: NSData!, onSocket sock: GCDAsyncSocket!) -> dispatch_queue_t! {
         return networkQueue
     }
+    
+    private func receivedControllerConnectedMessage(message: ControllerConnectedMessage, connection: TCPConnection) {
+        let host = connection.socket.connectedHost
+        var peer = remotePeers[host]
+        if peer == nil {
+            // Registering a channel on the TCP connection for controller name changes.
+            let nc = connection.registerReadChannel(3, type: RemoteMessage<ControllerNameMessage>.self)
+            /* Registering a channel on the open UDP connection, listening
+                for controller input from this specific host. */
+            let gc = inputConnection.registerReadChannel(1, host: host, type: RemoteMessage<GamepadMessage>.self)
+            
+            peer = RemotePeer(host: host, nameChannel: nc, gamepadChannel: gc)
+            remotePeers[host] = peer
+        }
+        
+        if let controller = peer!.controllers[message.index] {
+            controller.status = .Connected
+        } else {
+            let inputHandler = ControllerInputHandler(GamepadState(layout: .Regular), processingQueue: self.inputQueue.queueable())
+            let controller = Controller(inputHandler: inputHandler)
+            controller.index = UInt16(self.controllers.count)
+            peer!.controllers[message.index] = controller
+            
+            self.delegate?.controllerBrowser(self, controllerConnected: controller, type: .Remote)
+        }
+    }
+    
+    private func receivedControllerDisconnectedMessage(message: ControllerDisconnectedMessage, connection: TCPConnection) {
+        let host = connection.socket.connectedHost
+        guard let peer = remotePeers[host] else {
+            return
+        }
+        
+        if let controller = peer.controllers[message.index] {
+            self.delegate?.controllerBrowser(self, controllerDisconnected: controller)
+            peer.controllers.removeValueForKey(message.index)
+        }
+    }
+    
+    /* Whenever a peer disconnects, it has a short grace period before
+        the delegate is notified that the controllers are disconnected.
+        This is in order to make it slightly more resilient to network
+        drops and the likes. */
+    private func remotePeerDisconnected(peer: RemotePeer) {
+        for (_, controller) in peer.controllers {
+            controller.status = .Disconnected
+        }
+        
+        NSTimer.setTimeout(12) {
+            for (index, controller) in peer.controllers {
+                if controller.status == .Disconnected {
+                    self.delegate?.controllerBrowser(self, controllerDisconnected: controller)
+                    peer.controllers.removeValueForKey(index)
+                }
+            }
+            
+            if peer.controllers.count == 0 {
+                self.inputConnection.deregisterReadChannel(peer.gamepadChannel)
+                self.remotePeers.removeValueForKey(peer.host)
+            }
+        }
+    }
+    
+    /* If the peer reconnects before a short timer, the controllers
+        are reconnected. */
+    private func remotePeerReconnected(peer: RemotePeer) {
+        for (_, controller) in peer.controllers {
+            controller.status = .Connected
+        }
+    }
+    
 }
 
 public struct ServerTXTRecord : Marshallable {
