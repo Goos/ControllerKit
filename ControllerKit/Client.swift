@@ -74,7 +74,7 @@ public final class Client : NSObject, NSNetServiceBrowserDelegate, NSNetServiceD
     public func addController(controller: Controller) {
         if controllers[controller.index] == nil {
             controllers[controller.index] = controller
-            let throttler = ThrottledBuffer<GamepadState>(interval: 1.0/60.0, handler: { gamepad in
+            let throttler = ThrottledBuffer<GamepadState>(interval: 1.0/30.0, handler: { gamepad in
                 let message = RemoteMessage(message: GamepadMessage(state: gamepad), controllerIndex: controller.index)
                 self.gamepadChannel?.send(message)
             })

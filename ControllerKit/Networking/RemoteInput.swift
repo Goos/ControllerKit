@@ -170,7 +170,7 @@ extension GamepadMessage : Marshallable {
         guard let rawLayout: UInt16 = buffer.read(),
             layout = GamepadLayout(rawValue: rawLayout),
             buttonA: Float = buffer.read(),
-            buttonB: Float = buffer.read(),
+            buttonX: Float = buffer.read(),
             dpadX: Float = buffer.read(),
             dpadY: Float = buffer.read()
             else {
@@ -179,7 +179,7 @@ extension GamepadMessage : Marshallable {
         
         var gamepad = GamepadState(layout: layout)
         gamepad.buttonA = buttonA
-        gamepad.buttonB = buttonB
+        gamepad.buttonX = buttonX
         gamepad.dpad = JoystickState(xAxis: dpadX, yAxis: dpadY)
         
         if layout == .Regular || layout == .Extended {
@@ -209,7 +209,7 @@ extension GamepadMessage : Marshallable {
         var buffer = WriteBuffer()
         buffer << state.layout.rawValue
         buffer << state.buttonA
-        buffer << state.buttonB
+        buffer << state.buttonX
         buffer << state.dpad.xAxis
         buffer << state.dpad.yAxis
         

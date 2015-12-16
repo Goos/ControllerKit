@@ -16,6 +16,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
     var leftStickView: JoystickView!
     var rightStickView: JoystickView!
     var dpadView: JoystickView!
+    var buttonAView: NSView!
+    var buttonXView: NSView!
     var browser: ControllerBrowser!
     var controller: Controller!
     var client: Client!
@@ -29,17 +31,37 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
         rightStickView.translatesAutoresizingMaskIntoConstraints = false
         dpadView.translatesAutoresizingMaskIntoConstraints = false
         
+        buttonAView = NSView(frame: NSRect(x: 0, y: 0, width: 0, height: 0))
+        buttonXView = NSView(frame: NSRect(x: 0, y: 0, width: 0, height: 0))
+        buttonAView.wantsLayer = true
+        buttonXView.wantsLayer = true
+        buttonAView.layer = CALayer()
+        buttonXView.layer = CALayer()
+        buttonAView.translatesAutoresizingMaskIntoConstraints = false
+        buttonXView.translatesAutoresizingMaskIntoConstraints = false
+        
         window.contentView?.addSubview(leftStickView)
         window.contentView?.addSubview(rightStickView)
         window.contentView?.addSubview(dpadView)
+        window.contentView?.addSubview(buttonAView)
+        window.contentView?.addSubview(buttonXView)
         
-        let views = ["leftStickView": leftStickView, "rightStickView": rightStickView, "dpadView": dpadView]
+        let views = [
+            "leftStickView": leftStickView,
+            "rightStickView": rightStickView,
+            "dpadView": dpadView,
+            "aView": buttonAView,
+            "xView": buttonXView,
+        ]
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-(>=30)-[leftStickView(80)]-(16)-[rightStickView(80)]-(>=30)-|", options: [], metrics: nil, views: views))
+        window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:[aView(40)]-(30)-|", options: [], metrics: nil, views: views))
+        window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:[xView(40)]-(30)-|", options: [], metrics: nil, views: views))
         window.contentView?.addConstraint(NSLayoutConstraint(item: leftStickView, attribute: .CenterX, relatedBy: .Equal, toItem: window.contentView, attribute: .CenterX, multiplier: 1.0, constant: -44.0))
         window.contentView?.addConstraint(NSLayoutConstraint(item: dpadView, attribute: .CenterX, relatedBy: .Equal, toItem: window.contentView, attribute: .CenterX, multiplier: 1.0, constant: -44.0))
         window.contentView?.addConstraint(NSLayoutConstraint(item: dpadView, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 80.0))
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
+        window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[aView(40)]-(15)-[xView(40)]", options: [], metrics: nil, views: views))
         
         browser = ControllerBrowser(name: "TestServer")
         browser.delegate = self
@@ -66,6 +88,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
             self.dpadView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
         }
         
+        controller.buttonA.valueChangedHandler = { (value, pressed) in
+            if pressed {
+                self.buttonAView.layer?.backgroundColor = NSColor.greenColor().CGColor
+                NSTimer.setTimeout(0.3) {
+                    self.buttonAView.layer?.backgroundColor = NSColor.clearColor().CGColor
+                }
+            }
+        }
+        
+        controller.buttonX.valueChangedHandler = { (value, pressed) in
+            if pressed {
+                self.buttonAView.layer?.backgroundColor = NSColor.greenColor().CGColor
+                NSTimer.setTimeout(0.3) {
+                    self.buttonAView.layer?.backgroundColor = NSColor.clearColor().CGColor
+                }
+            }
+        }
     }
     
     func controllerBrowser(browser: ControllerBrowser, controllerDisconnected controller: Controller) {
