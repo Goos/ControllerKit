@@ -129,9 +129,9 @@ public final class Controller : NSObject {
             self.layout = state.layout
             self.dpad.setAxes(state.dpad.xAxis, yAxis: state.dpad.yAxis)
             self.buttonA.value = state.buttonA
-            self.buttonB.value = state.buttonA
-            self.buttonX.value = state.buttonA
-            self.buttonY.value = state.buttonA
+            self.buttonB.value = state.buttonB
+            self.buttonX.value = state.buttonX
+            self.buttonY.value = state.buttonY
             self.leftThumbstick.setAxes(state.leftThumbstick.xAxis, yAxis: state.leftThumbstick.yAxis)
             self.rightThumbstick.setAxes(state.rightThumbstick.xAxis, yAxis: state.rightThumbstick.yAxis)
             self.leftShoulder.value = state.leftShoulder
