@@ -10,7 +10,7 @@ import Cocoa
 import ControllerKit
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBrowserDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, ControllerPublisherDelegate, ControllerBrowserDelegate {
 
     @IBOutlet weak var window: NSWindow!
     var leftStickView: JoystickView!
@@ -20,7 +20,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
     var buttonXView: NSView!
     var browser: ControllerBrowser!
     var controller: Controller!
-    var client: Client!
+    var publisher: ControllerPublisher!
 
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         leftStickView = JoystickView()
@@ -67,14 +67,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
         browser.delegate = self
         browser.start()
         
-//        client = Client(name: "Macbook", controllers: [])
-//        client.delegate = self
-//        client.start()
+//        publisher = ControllerPublisher(name: "Macbook", controllers: [])
+//        publisher.delegate = self
+//        publisher.start()
     }
     
-    func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller, type: ControllerType) {
+    func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller) {
         print("found controller: \(controller)")
-//        client.addController(controller)
+//        publisher.addController(controller)
         
         controller.leftThumbstick.valueChangedHandler = { (xAxis, yAxis) in
             self.leftStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
@@ -99,9 +99,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
         
         controller.buttonX.valueChangedHandler = { (value, pressed) in
             if pressed {
-                self.buttonAView.layer?.backgroundColor = NSColor.greenColor().CGColor
+                self.buttonXView.layer?.backgroundColor = NSColor.greenColor().CGColor
                 NSTimer.setTimeout(0.3) {
-                    self.buttonAView.layer?.backgroundColor = NSColor.clearColor().CGColor
+                    self.buttonXView.layer?.backgroundColor = NSColor.clearColor().CGColor
                 }
             }
         }
@@ -109,31 +109,31 @@ class AppDelegate: NSObject, NSApplicationDelegate, ClientDelegate, ControllerBr
     
     func controllerBrowser(browser: ControllerBrowser, controllerDisconnected controller: Controller) {
         print("Disconnected controller: \(controller)")
-//        client.removeController(controller)
+//        publisher.removeController(controller)
     }
     
     func controllerBrowser(browser: ControllerBrowser, encounteredError error: NSError) {
         print("Encountered error: \(error)")
     }
     
-    func client(client: Client, discoveredService service: NSNetService) {
+    func publisher(client: ControllerPublisher, discoveredService service: NSNetService) {
         print("Found service: \(service)")
-        client.connect(service)
+        publisher.connect(service)
     }
     
-    func client(client: Client, lostService service: NSNetService) {
+    func publisher(client: ControllerPublisher, lostService service: NSNetService) {
         
     }
     
-    func client(client: Client, connectedToService service: NSNetService) {
+    func publisher(client: ControllerPublisher, connectedToService service: NSNetService) {
         print("Connected to: \(service.name)")
     }
     
-    func client(client: Client, disconnectedFromService service: NSNetService) {
+    func publisher(client: ControllerPublisher, disconnectedFromService service: NSNetService) {
     
     }
     
-    func client(client: Client, encounteredError error: NSError) {
+    func publisher(client: ControllerPublisher, encounteredError error: NSError) {
         print(error)
     }
 

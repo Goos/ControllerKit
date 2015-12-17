@@ -147,5 +147,5 @@ public final class Controller : NSObject {
 }
 
 public func ControllerInputHandler(initialState: GamepadState = GamepadState(layout: .Regular), processingQueue: Queueable? = nil) -> ObservableActor<GamepadState> {
-    return ObservableActor(initialState: initialState, transformers: [], reducer: GamepadStateReducer, processingQueue: processingQueue)
+    return ObservableActor(initialState: initialState, transformers: [], reducer: GamepadStateReducer, messageQueue: processingQueue)
 }

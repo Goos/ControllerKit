@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  ClientTest
+//  publisherTest
 //
 //  Created by Robin Goos on 27/10/15.
 //  Copyright © 2015 Robin Goos. All rights reserved.
@@ -10,11 +10,11 @@ import UIKit
 import ControllerKit
 import Act
 
-class ViewController: UIViewController, ClientDelegate, ControllerBrowserDelegate {
+class ViewController: UIViewController, ControllerPublisherDelegate, ControllerBrowserDelegate {
 
     var inputHandler: ObservableActor<GamepadState>!
     var controller: Controller!
-    var client: Client!
+    var publisher: ControllerPublisher!
     var server: ControllerBrowser!
     var joystickView: JoystickView!
     var leftStickView: JoystickView!
@@ -31,8 +31,8 @@ class ViewController: UIViewController, ClientDelegate, ControllerBrowserDelegat
         inputHandler = ControllerInputHandler(GamepadState(layout: .Micro), processingQueue: NSRunLoop.mainRunLoop())
         controller = Controller(inputHandler: inputHandler)
         
-        client = Client(name: "testclient", controllers: [controller])
-        client.delegate = self
+        publisher = ControllerPublisher(name: "testclient", controllers: [controller])
+        publisher.delegate = self
         
         leftStickView = JoystickView()
         rightStickView = JoystickView()
@@ -54,7 +54,7 @@ class ViewController: UIViewController, ClientDelegate, ControllerBrowserDelegat
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[leftStickView(80)]-(16)-[dpadView(80)]", options: [], metrics: nil, views: views))
         view.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
         
-        client.start()
+        publisher.start()
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -79,26 +79,26 @@ class ViewController: UIViewController, ClientDelegate, ControllerBrowserDelegat
         inputHandler.send(message)
     }
     
-    func client(client: Client, discoveredService service: NSNetService) {
-        client.connect(service)
+    func publisher(client: ControllerPublisher, discoveredService service: NSNetService) {
+        publisher.connect(service)
     }
     
-    func client(client: Client, lostService service: NSNetService) {
+    func publisher(client: ControllerPublisher, lostService service: NSNetService) {
     
     }
     
-    func client(client: Client, connectedToService service: NSNetService) {
+    func publisher(client: ControllerPublisher, connectedToService service: NSNetService) {
         print("Connected to: \(service.name)")
     }
     
-    func client(client: Client, disconnectedFromService service: NSNetService) {
+    func publisher(client: ControllerPublisher, disconnectedFromService service: NSNetService) {
     }
     
-    func client(client: Client, encounteredError error: NSError) {
+    func publisher(client: ControllerPublisher, encounteredError error: NSError) {
 
     }
     
-    func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller, type: ControllerType) {
+    func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller) {
         controller.leftThumbstick.valueChangedHandler = { (xAxis, yAxis) in
             self.leftStickView.state = JoystickState(xAxis: xAxis, yAxis: yAxis)
         }

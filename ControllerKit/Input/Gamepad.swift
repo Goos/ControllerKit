@@ -96,7 +96,7 @@ public func ==(lhs: GamepadState, rhs: GamepadState) -> Bool {
         lhs.dpad == rhs.dpad &&
         lhs.leftShoulder == rhs.leftShoulder &&
         lhs.rightShoulder == rhs.rightShoulder &&
-        lhs.leftTrigger == rhs.rightTrigger &&
+        lhs.leftTrigger == rhs.leftTrigger &&
         lhs.rightTrigger == rhs.rightTrigger &&
         lhs.leftThumbstick == rhs.leftThumbstick &&
         lhs.rightThumbstick == rhs.rightThumbstick

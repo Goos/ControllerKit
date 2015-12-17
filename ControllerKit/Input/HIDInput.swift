@@ -11,12 +11,6 @@
 import Foundation
 import Act
 
-protocol HIDManagerDelegate : class {
-    func manager(manager: HIDControllerManager, controllerConnected controller: Controller)
-    func manager(manager: HIDControllerManager, controllerDisconnected controller: Controller)
-    func manager(manager: HIDControllerManager, encounteredError error: NSError)
-}
-
 #if os(OSX)
 import IOKit.hid
 
@@ -35,14 +29,16 @@ enum HIDProduct : Int {
 
 let kHIDAxisDeadZone: Float = 0.2
 
-final class HIDControllerManager {
+final class HIDControllerSource : ControllerSource {
     private let runLoopMode = "ControllerKitHIDInput"
     let manager: IOHIDManager
     let runLoop: NSRunLoop
     
-    var controllers: [Int:Controller] = [:]
+    private var controllers: [Int:Controller] = [:]
     
-    weak var delegate: HIDManagerDelegate?
+    private var onControllerConnected: ((Controller) -> ())? = nil
+    private var onControllerDisconnected: ((Controller) -> ())? = nil
+    private var onError: ((NSError) -> ())? = nil
     
     init(runLoop: NSRunLoop = NSRunLoop.mainRunLoop()) {
         self.runLoop = runLoop
@@ -53,11 +49,15 @@ final class HIDControllerManager {
         stop()
     }
     
-    func start() {
+    func listen(controllerConnected: (Controller) -> (), controllerDisconnected: (Controller) -> (), error: (NSError) -> ()) {
+        onControllerConnected = controllerConnected
+        onControllerDisconnected = controllerDisconnected
+        onError = error
+        
         let status = IOHIDManagerOpen(manager, 0)
         if status != kIOReturnSuccess {
             let error = NSError(domain: "com.controllerkit.hid", code: 0, userInfo: nil)
-            self.delegate?.manager(self, encounteredError: error)
+            onError?(error)
             return
         }
         
@@ -68,15 +68,15 @@ final class HIDControllerManager {
         the 'self'-reference as a void pointer to the context parameter. */
         IOHIDManagerRegisterDeviceMatchingCallback(manager, { (context, result, sender, device) in
             if result == kIOReturnSuccess {
-                let manager = unsafeBitCast(context, HIDControllerManager.self)
-                manager.deviceConnected(device)
+                let source = unsafeBitCast(context, HIDControllerSource.self)
+                source.deviceConnected(device)
             }
         }, context)
         
         IOHIDManagerRegisterDeviceRemovalCallback(manager, { (context, result, sender, device) in
             if result == kIOReturnSuccess {
-                let manager = unsafeBitCast(context, HIDControllerManager.self)
-                manager.deviceDisconnected(device)
+                let source = unsafeBitCast(context, HIDControllerSource.self)
+                source.deviceDisconnected(device)
             }
         }, context)
         
@@ -176,14 +176,15 @@ final class HIDControllerManager {
             
             let deviceId = IOHIDDeviceGetProperty(device, kIOHIDUniqueIDKey).takeRetainedValue() as! Int
             controllers[deviceId] = controller
-            self.delegate?.manager(self, controllerConnected: controller)
+            
+            onControllerConnected?(controller)
         }
     }
     
     func deviceDisconnected(device: IOHIDDevice) {
         let deviceId = IOHIDDeviceGetProperty(device, kIOHIDUniqueIDKey).takeRetainedValue() as! Int
         if let controller = controllers.removeValueForKey(deviceId) {
-            self.delegate?.manager(self, controllerDisconnected: controller)
+            onControllerDisconnected?(controller)
         }
     }
 }
