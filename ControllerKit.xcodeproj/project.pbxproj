@@ -42,6 +42,7 @@
 		F63C651F1C0D0B29000A624A /* Marshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C651E1C0D0B29000A624A /* Marshalling.swift */; };
 		F63C65201C0D0B29000A624A /* Marshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C651E1C0D0B29000A624A /* Marshalling.swift */; };
 		F63C65211C0D0B29000A624A /* Marshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63C651E1C0D0B29000A624A /* Marshalling.swift */; };
+		F64ED0E41C47FAE100863584 /* Act.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = F65EA89F1BDC44C900167F45 /* Act.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F65EA8891BDC388B00167F45 /* ControllerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = F65EA8881BDC388B00167F45 /* ControllerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F65EA8901BDC388B00167F45 /* ControllerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA8851BDC388B00167F45 /* ControllerKit.framework */; };
 		F65EA8A01BDC44C900167F45 /* Act.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA89F1BDC44C900167F45 /* Act.framework */; };
@@ -96,6 +97,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		F64ED0E31C47FAC500863584 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F64ED0E41C47FAE100863584 /* Act.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		F62A45011C222E8B0084DAB0 /* ControllerKitTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ControllerKitTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		F62A45021C222E8B0084DAB0 /* GamepadTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GamepadTests.swift; sourceTree = "<group>"; };
@@ -107,6 +121,7 @@
 		F63C65141C0CFD29000A624A /* UDPConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UDPConnection.swift; path = Networking/UDPConnection.swift; sourceTree = "<group>"; };
 		F63C65181C0CFD91000A624A /* TCPConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TCPConnection.swift; path = Networking/TCPConnection.swift; sourceTree = "<group>"; };
 		F63C651E1C0D0B29000A624A /* Marshalling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Marshalling.swift; path = Networking/Marshalling.swift; sourceTree = "<group>"; };
+		F64ED0E01C47FA6C00863584 /* Act.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Act.framework; path = "Carthage/Checkouts/Act/build/Debug-iphoneos/Act.framework"; sourceTree = "<group>"; };
 		F65EA8851BDC388B00167F45 /* ControllerKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ControllerKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65EA8881BDC388B00167F45 /* ControllerKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControllerKit.h; sourceTree = "<group>"; };
 		F65EA88A1BDC388B00167F45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -253,6 +268,7 @@
 		F65EA8A11BDC44D300167F45 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F64ED0E01C47FA6C00863584 /* Act.framework */,
 				F6A6E8A81BEA831400BC9809 /* tvOS */,
 				F65EA93B1BDEF9F400167F45 /* OSX */,
 				F65EA93C1BDEF9FA00167F45 /* iOS */,
@@ -396,6 +412,7 @@
 				F65EA88B1BDC388B00167F45 /* Sources */,
 				F65EA88C1BDC388B00167F45 /* Frameworks */,
 				F65EA88D1BDC388B00167F45 /* Resources */,
+				F64ED0E31C47FAC500863584 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -782,6 +799,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ControllerKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.goos.ControllerKitTests;
@@ -795,6 +816,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = ControllerKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.goos.ControllerKitTests;

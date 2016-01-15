@@ -19,25 +19,29 @@ import Act
 public func GamepadStateReducer(state: GamepadState, message: Message) -> GamepadState {
     switch(message) {
     case let m as ButtonMessage:
+        let value = max(0.0, min(m.value, 1.0))
         var s = state
         switch(m.button) {
-        case .A: s.buttonA = m.value
-        case .B: s.buttonB = m.value
-        case .X: s.buttonX = m.value
-        case .Y: s.buttonY = m.value
-        case .LS: s.leftShoulder = m.value
-        case .RS: s.rightShoulder = m.value
-        case .LT: s.leftTrigger = m.value
-        case .RT: s.rightTrigger = m.value
+        case .A: s.buttonA = value
+        case .B: s.buttonB = value
+        case .X: s.buttonX = value
+        case .Y: s.buttonY = value
+        case .LS: s.leftShoulder = value
+        case .RS: s.rightShoulder = value
+        case .LT: s.leftTrigger = value
+        case .RT: s.rightTrigger = value
         case .Pause: break
         }
         return s
     case let m as JoystickMessage:
+        let x = max(-1.0, min(m.state.xAxis, 1.0))
+        let y = max(-1.0, min(m.state.yAxis, 1.0))
+        let js = JoystickState(xAxis: x, yAxis: y)
         var s = state
         switch(m.joystick) {
-        case .Dpad: s.dpad = m.state
-        case .LeftThumbstick: s.leftThumbstick = m.state
-        case .RightThumbstick: s.rightThumbstick = m.state
+        case .Dpad: s.dpad = js
+        case .LeftThumbstick: s.leftThumbstick = js
+        case .RightThumbstick: s.rightThumbstick = js
         }
         return s
     case let m as GamepadMessage:
