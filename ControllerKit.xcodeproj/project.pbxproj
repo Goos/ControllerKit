@@ -11,7 +11,7 @@
 		F62A45051C2234610084DAB0 /* ControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62A45041C2234610084DAB0 /* ControllerTests.swift */; };
 		F62A45071C2238A00084DAB0 /* MarshallingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62A45061C2238A00084DAB0 /* MarshallingTests.swift */; };
 		F632C9801BE44F6F008D94E3 /* HIDInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6CA35E91BE3B66600A08132 /* HIDInput.swift */; };
-		F632C9811BE44F6F008D94E3 /* ControllerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */; };
+		F632C9811BE44F6F008D94E3 /* InputTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B01BDD96DC00167F45 /* InputTypes.swift */; };
 		F632C9821BE44F6F008D94E3 /* NetworkInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B21BDD976600167F45 /* NetworkInput.swift */; };
 		F632C9831BE44F6F008D94E3 /* MFiControllerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B41BDD9AF300167F45 /* MFiControllerInput.swift */; };
 		F632C9841BE44F6F008D94E3 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A21BDC493500167F45 /* Controller.swift */; };
@@ -49,7 +49,7 @@
 		F65EA8A31BDC493500167F45 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A21BDC493500167F45 /* Controller.swift */; };
 		F65EA8A51BDC49B700167F45 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA8A41BDC49B700167F45 /* GameController.framework */; };
 		F65EA8A71BDC4EC400167F45 /* ControllerBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */; };
-		F65EA8B11BDD96DC00167F45 /* ControllerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */; };
+		F65EA8B11BDD96DC00167F45 /* InputTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B01BDD96DC00167F45 /* InputTypes.swift */; };
 		F65EA8B31BDD976600167F45 /* NetworkInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B21BDD976600167F45 /* NetworkInput.swift */; };
 		F65EA8B51BDD9AF300167F45 /* MFiControllerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B41BDD9AF300167F45 /* MFiControllerInput.swift */; };
 		F65EA8B71BDDA1FE00167F45 /* ControllerPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B61BDDA1FE00167F45 /* ControllerPublisher.swift */; };
@@ -64,7 +64,7 @@
 		F65EA8F61BDEE50A00167F45 /* ClosureTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8F51BDEE50A00167F45 /* ClosureTimer.swift */; };
 		F65EA94B1BDEFC8000167F45 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA9351BDEF99B00167F45 /* GameController.framework */; };
 		F65EA94C1BDEFC9100167F45 /* Act.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F65EA9391BDEF9E700167F45 /* Act.framework */; };
-		F65EA94D1BDEFCBE00167F45 /* ControllerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */; };
+		F65EA94D1BDEFCBE00167F45 /* InputTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B01BDD96DC00167F45 /* InputTypes.swift */; };
 		F65EA94E1BDEFCBE00167F45 /* NetworkInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B21BDD976600167F45 /* NetworkInput.swift */; };
 		F65EA94F1BDEFCBE00167F45 /* MFiControllerInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8B41BDD9AF300167F45 /* MFiControllerInput.swift */; };
 		F65EA9501BDEFCBE00167F45 /* Controller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F65EA8A21BDC493500167F45 /* Controller.swift */; };
@@ -131,7 +131,7 @@
 		F65EA8A21BDC493500167F45 /* Controller.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Controller.swift; sourceTree = "<group>"; };
 		F65EA8A41BDC49B700167F45 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		F65EA8A61BDC4EC300167F45 /* ControllerBrowser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerBrowser.swift; sourceTree = "<group>"; };
-		F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ControllerInput.swift; path = Input/ControllerInput.swift; sourceTree = "<group>"; };
+		F65EA8B01BDD96DC00167F45 /* InputTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = InputTypes.swift; path = Input/InputTypes.swift; sourceTree = "<group>"; };
 		F65EA8B21BDD976600167F45 /* NetworkInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NetworkInput.swift; path = Input/NetworkInput.swift; sourceTree = "<group>"; };
 		F65EA8B41BDD9AF300167F45 /* MFiControllerInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MFiControllerInput.swift; path = Input/MFiControllerInput.swift; sourceTree = "<group>"; };
 		F65EA8B61BDDA1FE00167F45 /* ControllerPublisher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerPublisher.swift; sourceTree = "<group>"; };
@@ -208,7 +208,7 @@
 			isa = PBXGroup;
 			children = (
 				F6345F751C06696300C2ACE3 /* Gamepad.swift */,
-				F65EA8B01BDD96DC00167F45 /* ControllerInput.swift */,
+				F65EA8B01BDD96DC00167F45 /* InputTypes.swift */,
 				F6CA35E91BE3B66600A08132 /* HIDInput.swift */,
 				F65EA8B41BDD9AF300167F45 /* MFiControllerInput.swift */,
 				F65EA8B21BDD976600167F45 /* NetworkInput.swift */,
@@ -528,7 +528,7 @@
 				F632C9901BE44F81008D94E3 /* AsyncSocket.m in Sources */,
 				F632C9831BE44F6F008D94E3 /* MFiControllerInput.swift in Sources */,
 				F632C9821BE44F6F008D94E3 /* NetworkInput.swift in Sources */,
-				F632C9811BE44F6F008D94E3 /* ControllerInput.swift in Sources */,
+				F632C9811BE44F6F008D94E3 /* InputTypes.swift in Sources */,
 				F632C98E1BE44F81008D94E3 /* GCDAsyncUdpSocket.m in Sources */,
 				F6345F781C06696300C2ACE3 /* Gamepad.swift in Sources */,
 				F632C9881BE44F6F008D94E3 /* ClosureTimer.swift in Sources */,
@@ -555,7 +555,7 @@
 				F65EA8EC1BDED6DB00167F45 /* GCDAsyncUdpSocket.m in Sources */,
 				F6345F761C06696300C2ACE3 /* Gamepad.swift in Sources */,
 				F65EA8B51BDD9AF300167F45 /* MFiControllerInput.swift in Sources */,
-				F65EA8B11BDD96DC00167F45 /* ControllerInput.swift in Sources */,
+				F65EA8B11BDD96DC00167F45 /* InputTypes.swift in Sources */,
 				F65EA8A71BDC4EC400167F45 /* ControllerBrowser.swift in Sources */,
 				F65EA8B71BDDA1FE00167F45 /* ControllerPublisher.swift in Sources */,
 				F65EA8F61BDEE50A00167F45 /* ClosureTimer.swift in Sources */,
@@ -589,7 +589,7 @@
 				F65EA9541BDEFCBE00167F45 /* ClosureTimer.swift in Sources */,
 				F6345F771C06696300C2ACE3 /* Gamepad.swift in Sources */,
 				F65EA94E1BDEFCBE00167F45 /* NetworkInput.swift in Sources */,
-				F65EA94D1BDEFCBE00167F45 /* ControllerInput.swift in Sources */,
+				F65EA94D1BDEFCBE00167F45 /* InputTypes.swift in Sources */,
 				F65EA9581BDEFCCD00167F45 /* GCDAsyncSocket.m in Sources */,
 				F65EA9501BDEFCBE00167F45 /* Controller.swift in Sources */,
 				F6CA35EB1BE3B66600A08132 /* HIDInput.swift in Sources */,

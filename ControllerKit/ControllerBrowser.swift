@@ -90,13 +90,13 @@ public final class ControllerBrowser : NSObject, NSNetServiceDelegate {
         }
     }
     
-    func addController(controller: Controller) {
+    private func addController(controller: Controller) {
         controllers.append(controller)
         controller.index = UInt16(controllers.count)
         delegate?.controllerBrowser(self, controllerConnected: controller)
     }
     
-    func removeController(controller: Controller) {
+    private func removeController(controller: Controller) {
         if let idx = controllers.indexOf(controller) {
             controllers.removeAtIndex(idx)
             for (index, ctrlrs) in controllers.enumerate() {
