@@ -81,7 +81,7 @@ public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, 
             }
             
             if currentService != nil {
-                let message = ControllerConnectedMessage(index: controller.index, layout: controller.layout, name: "\(self.name).\(controller.name)")
+                let message = ControllerConnectedMessage(index: controller.index, layout: controller.layout, name: nameForController(controller))
                 connectChannel.send(message)
             }
         }
@@ -114,6 +114,14 @@ public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, 
         
         dispatch_async(dispatch_get_main_queue()) {
             service.resolveWithTimeout(30)
+        }
+    }
+    
+    private func nameForController(controller: Controller) -> String {
+        if let controllerName = controller.name {
+            return "\(name)_\(controllerName)"
+        } else {
+            return "\(name)_\(controller.index)"
         }
     }
     
@@ -152,7 +160,7 @@ public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, 
             self?.gamepadChannel = publisher.inputConnection.registerWriteChannel(1, host: host, port: port, type: NetworkMessage<GamepadMessage>.self)
             
             for (index, controller) in publisher.controllers {
-                let message = ControllerConnectedMessage(index: index, layout: controller.layout, name: "\(self?.name).\(controller.name)")
+                let message = ControllerConnectedMessage(index: index, layout: controller.layout, name: self?.nameForController(controller))
                 publisher.connectChannel.send(message)
             }
         }, error: { [weak self] error in

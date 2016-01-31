@@ -208,6 +208,7 @@ final class NetworkControllerSource : NSObject, ControllerSource, NSNetServiceDe
         } else {
             let inputHandler = ControllerInputHandler(GamepadState(layout: .Regular), processingQueue: self.inputQueue.queueable())
             let controller = Controller(inputHandler: inputHandler)
+            controller.name = message.name
             peer!.controllers[message.index] = controller
             
             onControllerConnected?(controller)

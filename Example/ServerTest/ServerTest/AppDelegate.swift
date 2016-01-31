@@ -123,7 +123,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, ControllerPublisherDelegate,
     
     func controllerBrowser(browser: ControllerBrowser, controllerDisconnected controller: Controller) {
         let name = controller.name ?? "Controller \(controller.index)"
-        titleView.string = "\(name) connected"
+        titleView.string = "\(name) disconnected"
         titleView.needsDisplay = true
         print(titleView.string)
     }
