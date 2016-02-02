@@ -78,7 +78,9 @@ public final class ControllerBrowser : NSObject, NSNetServiceDelegate {
                 self?.removeController(controller)
             }, error: { [weak self] error in
                 if let s = self {
-                    s.delegate?.controllerBrowser(s, encounteredError: error)
+                    dispatch_async(dispatch_get_main_queue()) {
+                        s.delegate?.controllerBrowser(s, encounteredError: error)
+                    }
                 }
             })
         }
@@ -93,7 +95,9 @@ public final class ControllerBrowser : NSObject, NSNetServiceDelegate {
     private func addController(controller: Controller) {
         controllers.append(controller)
         controller.index = UInt16(controllers.count)
-        delegate?.controllerBrowser(self, controllerConnected: controller)
+        dispatch_async(dispatch_get_main_queue()) {
+            delegate?.controllerBrowser(self, controllerConnected: controller)
+        }
     }
     
     private func removeController(controller: Controller) {
@@ -103,7 +107,9 @@ public final class ControllerBrowser : NSObject, NSNetServiceDelegate {
                 ctrlrs.index = UInt16(index)
             }
             
-            delegate?.controllerBrowser(self, controllerDisconnected: controller)
+            dispatch_async(dispatch_get_main_queue()) {
+                delegate?.controllerBrowser(self, controllerDisconnected: controller)
+            }
         }
     }
 }

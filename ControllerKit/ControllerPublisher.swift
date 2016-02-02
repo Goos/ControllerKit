@@ -165,11 +165,15 @@ public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, 
             }
         }, error: { [weak self] error in
             if let s = self {
-                s.delegate?.publisher(s, encounteredError: error)
+                dispatch_async(dispatch_get_main_queue()) {
+                    s.delegate?.publisher(s, encounteredError: error)
+                }
             }
         }, disconnect: { [weak self] in
             if let s = self {
-                s.delegate?.publisher(s, disconnectedFromService: sender)
+                dispatch_async(dispatch_get_main_queue()) {
+                    s.delegate?.publisher(s, disconnectedFromService: sender)
+                }
             }
         })
         
