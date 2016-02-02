@@ -96,7 +96,7 @@ public final class ControllerBrowser : NSObject, NSNetServiceDelegate {
         controllers.append(controller)
         controller.index = UInt16(controllers.count)
         dispatch_async(dispatch_get_main_queue()) {
-            delegate?.controllerBrowser(self, controllerConnected: controller)
+            self.delegate?.controllerBrowser(self, controllerConnected: controller)
         }
     }
     
@@ -108,7 +108,7 @@ public final class ControllerBrowser : NSObject, NSNetServiceDelegate {
             }
             
             dispatch_async(dispatch_get_main_queue()) {
-                delegate?.controllerBrowser(self, controllerDisconnected: controller)
+                self.delegate?.controllerBrowser(self, controllerDisconnected: controller)
             }
         }
     }
