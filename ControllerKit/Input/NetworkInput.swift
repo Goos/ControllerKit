@@ -14,6 +14,7 @@ final class NetworkPeer {
     let host: String
     let nameChannel: TCPReadChannel<NetworkMessage<ControllerNameMessage>>
     let gamepadChannel: UDPReadChannel<NetworkMessage<GamepadMessage>>
+    var disconnectTimer: NSTimer?
     
     init(host: String, nameChannel: TCPReadChannel<NetworkMessage<ControllerNameMessage>>, gamepadChannel: UDPReadChannel<NetworkMessage<GamepadMessage>>) {
         self.host = host
@@ -238,24 +239,22 @@ final class NetworkControllerSource : NSObject, ControllerSource, NSNetServiceDe
             controller.status = .Disconnected
         }
         
-        NSTimer.setTimeout(12) {
+        peer.disconnectTimer = NSTimer.setTimeout(12) {
             for (index, controller) in peer.controllers {
-                if controller.status == .Disconnected {
-                    self.onControllerDisconnected?(controller)
-                    peer.controllers.removeValueForKey(index)
-                }
+                self.onControllerDisconnected?(controller)
+                peer.controllers.removeValueForKey(index)
             }
             
-            if peer.controllers.count == 0 {
-                self.inputConnection.deregisterReadChannel(peer.gamepadChannel)
-                self.peers.removeValueForKey(peer.host)
-            }
+            self.inputConnection.deregisterReadChannel(peer.gamepadChannel)
+            self.peers.removeValueForKey(peer.host)
         }
     }
     
     /* If the peer reconnects before a short timer, the controllers
         are reconnected. */
     private func peerReconnected(peer: NetworkPeer) {
+        peer.disconnectTimer?.invalidate()
+        
         for (_, controller) in peer.controllers {
             controller.status = .Connected
         }
