@@ -26,6 +26,9 @@ final class MFiControllerSource : NSObject, ControllerSource {
     }
     
     func listen(controllerConnected: (Controller) -> (), controllerDisconnected: (Controller) -> (), error: (NSError) -> ()) {
+        onControllerConnected = controllerConnected
+        onControllerDisconnected = controllerDisconnected
+        
         GCController.startWirelessControllerDiscoveryWithCompletionHandler(nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "controllerDidConnect:", name: GCControllerDidConnectNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "controllerDidDisconnect:", name: GCControllerDidDisconnectNotification, object: nil)
