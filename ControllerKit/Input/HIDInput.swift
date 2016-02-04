@@ -213,7 +213,7 @@ func IOHIDDeviceCalibrateAxisElement(element: IOHIDElementRef, calibration: (Flo
     
     if deadZonePercent > 0.0 {
         let mid = Float(saturation.0 + saturation.1) / 2.0
-        let deadZone = Float(saturation.1 - saturation.0) * deadZonePercent / 2.0
+        let deadZone = Float(saturation.1 - saturation.0) * (deadZonePercent / 2.0)
         
         IOHIDElementSetProperty(element, kIOHIDElementCalibrationDeadZoneMinKey, mid - deadZone)
         IOHIDElementSetProperty(element, kIOHIDElementCalibrationDeadZoneMaxKey, mid + deadZone)

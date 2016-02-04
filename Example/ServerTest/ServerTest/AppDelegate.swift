@@ -79,12 +79,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, ControllerPublisherDelegate,
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:[titleView(24)]-(30)-[rightStickView(80)]", options: [], metrics: nil, views: views))
         window.contentView?.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:[titleView]-(30)-[aView(40)]-(15)-[xView(40)]", options: [], metrics: nil, views: views))
         
-        browser = ControllerBrowser(name: "TestServer")
+        publisher = ControllerPublisher(name: "Macbook", controllers: [])
+        publisher.delegate = self
+        publisher.start()
+        
+        browser = ControllerBrowser(name: "TestServer", controllerTypes: [.HID])
         browser.delegate = self
         browser.start()
     }
     
     func controllerBrowser(browser: ControllerBrowser, controllerConnected controller: Controller) {
+        publisher.addController(controller)
         let name = controller.name ?? "Controller \(controller.index)"
         titleView.string = "\(name) connected"
         titleView.needsDisplay = true
