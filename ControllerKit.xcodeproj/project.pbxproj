@@ -783,6 +783,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
+				GCC_OPTIMIZATION_LEVEL = s;
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = ControllerKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

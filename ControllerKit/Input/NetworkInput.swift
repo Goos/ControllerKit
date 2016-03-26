@@ -71,6 +71,7 @@ let kLocalDomain = "local."
 final class NetworkControllerSource : NSObject, ControllerSource, NSNetServiceDelegate, GCDAsyncSocketDelegate {
     private let name: String
     private let serviceIdentifier: String
+    private var running = false
     
     private var peers: [String:NetworkPeer] = [:]
     
@@ -107,6 +108,10 @@ final class NetworkControllerSource : NSObject, ControllerSource, NSNetServiceDe
     }
     
     func listen(controllerConnected: (Controller) -> (), controllerDisconnected: (Controller) -> (), error: (NSError) -> ()) {
+        guard !running else {
+            return
+        }
+        
         onControllerConnected = controllerConnected
         onControllerDisconnected = controllerDisconnected
         onError = error
@@ -123,19 +128,39 @@ final class NetworkControllerSource : NSObject, ControllerSource, NSNetServiceDe
                 self.netService?.delegate = self
                 self.netService?.includesPeerToPeer = false
                 self.netService?.publish()
+                self.addApplicationStateListeners()
             }, error: { [unowned self] err in
+                self.running = false
                 self.onError?(err)
             })
         } catch let error as NSError {
+            self.running = false
             self.onError?(error)
         }
+        
+        running = true
+    }
+    
+    func addApplicationStateListeners() {
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillResignActive:", name: "UIApplicationWillResignActiveNotification", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground:", name: "UIApplicationWillEnterForegroundNotification", object: nil)
+    }
+    
+    func removeApplicationStateListeners() {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
     func stop() {
+        guard running else {
+            return
+        }
+        
         netService?.stop()
         for conn in connections {
             conn.disconnect()
         }
+        running = false
+        removeApplicationStateListeners()
     }
     
     // MARK: NSNetServiceDelegate
@@ -154,6 +179,9 @@ final class NetworkControllerSource : NSObject, ControllerSource, NSNetServiceDe
     
     // MARK: GCDAsyncSocketDelegate
     func socket(sock: GCDAsyncSocket!, didAcceptNewSocket newSocket: GCDAsyncSocket!) {
+        newSocket.performBlock {
+            newSocket.enableBackgroundingOnSocket()
+        }
         let tcpConnection = TCPConnection(socket: newSocket, delegateQueue: inputQueue)
         connections.insert(tcpConnection)
         
@@ -257,6 +285,19 @@ final class NetworkControllerSource : NSObject, ControllerSource, NSNetServiceDe
         
         for (_, controller) in peer.controllers {
             controller.status = .Connected
+        }
+    }
+    
+    // MARK: Application events
+    func applicationWillResignActive(notification: NSNotification) {
+        if running {
+            netService?.stop()
+        }
+    }
+    
+    func applicationWillEnterForeground(notification: NSNotification) {
+        if running {
+            netService?.publish()
         }
     }
 }

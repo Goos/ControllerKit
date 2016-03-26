@@ -120,6 +120,12 @@ final class TCPConnection : NSObject, GCDAsyncSocketDelegate {
             socket.readDataToLength(UInt(TCPHeader.size), withTimeout: -1.0, tag: TCPConnection.TCPHeaderTag)
         }
     }
+    
+    func enableBackgrounding() {
+        socket.performBlock {
+            self.socket.enableBackgroundingOnSocket()
+        }
+    }
 }
 
 struct TCPHeader : Marshallable {

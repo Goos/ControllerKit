@@ -40,6 +40,17 @@ public struct JoystickMessage : Message {
     }
 }
 
+public struct MotionMessage : Message {
+    public let type = "MotionMessage"
+    public let gravity: AccelerationState
+    public let acceleration: AccelerationState
+    
+    public init(gravity: AccelerationState, acceleration: AccelerationState) {
+        self.gravity = gravity
+        self.acceleration = acceleration
+    }
+}
+
 public struct GamepadMessage : Message {
     public let type = "GamepadMessage"
     public let state: GamepadState

@@ -29,6 +29,7 @@ import Foundation
 public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, NSNetServiceDelegate {
     let name: String
     let serviceIdentifier: String
+    private var running = false
     
     internal(set) var controllers: [UInt16:Controller] = [:]
     private var observerBlocks: [UInt16:()->()] = [:]
@@ -71,6 +72,12 @@ public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, 
         browser.delegate = self
     }
     
+    deinit {
+        if running {
+            stop()
+        }
+    }
+    
     public func addController(controller: Controller) {
         if controllers[controller.index] == nil {
             controllers[controller.index] = controller
@@ -99,13 +106,29 @@ public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, 
     }
     
     public func start() {
+        guard !running else {
+            return
+        }
+        
         dispatch_async(dispatch_get_main_queue()) {
             self.browser.searchForServicesOfType("_\(self.serviceIdentifier)._tcp", inDomain: kLocalDomain)
         }
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillResignActive:", name: "UIApplicationWillResignActiveNotification", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground:", name: "UIApplicationWillEnterForegroundNotification", object: nil)
+        
+        running = true
     }
     
     public func stop() {
+        guard running else {
+            return
+        }
+        
         browser.stop()
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+        running = false
     }
     
     public func connect(service: NSNetService) {
@@ -153,6 +176,7 @@ public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, 
             guard let publisher = self else {
                 return
             }
+            self?.tcpConnection.enableBackgrounding()
             
             let host = publisher.tcpConnection.socket.connectedHost
             let port = UInt16(txtRecord.inputPort)
@@ -183,6 +207,21 @@ public final class ControllerPublisher : NSObject, NSNetServiceBrowserDelegate, 
         if let code = errorDict[NSNetServicesErrorCode] as? Int {
             let error = NSError(domain: "com.controllerkit.netservice", code: code, userInfo: errorDict)
             self.delegate?.publisher(self, encounteredError: error)
+        }
+    }
+    
+    // MARK: Application events
+    func applicationWillResignActive(notification: NSNotification) {
+        if running {
+            browser.stop()
+        }
+    }
+    
+    func applicationWillEnterForeground(notification: NSNotification) {
+        if running {
+            dispatch_async(dispatch_get_main_queue()) {
+                self.browser.searchForServicesOfType("_\(self.serviceIdentifier)._tcp", inDomain: kLocalDomain)
+            }
         }
     }
 }
